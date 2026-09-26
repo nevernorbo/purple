@@ -9,6 +9,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ComponentProps,
 } from "react"
@@ -40,7 +41,7 @@ import { EmptyState } from "@/features/repositories/EmptyState"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { AppSidebar } from "./AppSidebar"
 import { columnDndId } from "./dnd"
-import { matchesFilter } from "./filter"
+import { labelsMatching, matchesFilter } from "./filter"
 import { MobileBoard } from "./MobileBoard"
 import { MobileFilterSheet } from "./MobileFilterSheet"
 import { useBoardDnd } from "./useBoardDnd"
@@ -77,6 +78,8 @@ function useCollapsedKinds() {
   return [kinds, toggle] as const
 }
 
+const isMac = /Mac|iPhone|iPad/.test(navigator.platform)
+
 /** The sidebar component writes its open state to a cookie; read it back. */
 const sidebarDefaultOpen = () =>
   !document.cookie.includes("sidebar_state=false")
@@ -90,6 +93,22 @@ export function Board() {
   const [editingId, setEditingId] = useState<number | null>(null)
   const [deletingCard, setDeletingCard] = useState<Card | null>(null)
   const [deletingColumn, setDeletingColumn] = useState<ColumnType | null>(null)
+  const searchRef = useRef<HTMLInputElement>(null)
+
+  // Ctrl+K (⌘K on macOS) jumps to the search bar.
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() !== "k" || !(event.metaKey || event.ctrlKey))
+        return
+      const input = searchRef.current
+      if (!input) return
+      event.preventDefault()
+      input.focus()
+      input.select()
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [])
 
   const repo = store.repos.find((r) => r.id === hash.repoId) ?? null
 
@@ -129,15 +148,18 @@ export function Board() {
 
   const visibleByColumn = useMemo(() => {
     if (!filtering) return cardsByColumn
+    const searchLabelIds = labelsMatching(store.labels, hash.q)
     const visible = new Map<number, Card[]>()
     for (const [columnId, list] of cardsByColumn) {
       visible.set(
         columnId,
-        list.filter((c) => matchesFilter(c, hash.q, hash.labels))
+        list.filter((c) =>
+          matchesFilter(c, hash.q, hash.labels, searchLabelIds)
+        )
       )
     }
     return visible
-  }, [cardsByColumn, filtering, hash.q, hash.labels])
+  }, [cardsByColumn, filtering, hash.q, hash.labels, store.labels])
 
   const counts = useMemo(
     () =>
@@ -201,13 +223,23 @@ export function Board() {
                 <div className="relative w-full max-w-xs">
                   <MagnifyingGlassIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
+                    ref={searchRef}
                     type="search"
                     value={hash.q}
                     onChange={(e) => setHash({ q: e.target.value })}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") e.currentTarget.blur()
+                    }}
                     placeholder="SEARCH"
-                    aria-label="Search cards"
-                    className="h-10 pl-8"
+                    aria-label="Search cards and labels"
+                    aria-keyshortcuts="Control+K Meta+K"
+                    className="peer h-10 pr-14 pl-8"
                   />
+                  {!hash.q && (
+                    <kbd className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 border px-1.5 font-mono text-xs text-muted-foreground peer-focus:hidden">
+                      {isMac ? "⌘K" : "Ctrl K"}
+                    </kbd>
+                  )}
                 </div>
                 <LabelFilter
                   selected={hash.labels}

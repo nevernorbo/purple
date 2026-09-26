@@ -52,7 +52,9 @@ export function MobileFilterSheet({
       <SheetContent side="bottom" className="max-h-[85svh]">
         <SheetHeader>
           <SheetTitle>Filter</SheetTitle>
-          <SheetDescription>Titles, prompts and branches.</SheetDescription>
+          <SheetDescription>
+            Titles, prompts, branches and labels.
+          </SheetDescription>
         </SheetHeader>
         <div className="flex min-h-0 flex-col gap-4 overflow-y-auto px-4 pt-2">
           <Input
