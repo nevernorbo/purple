@@ -8,7 +8,10 @@ import {
   TrashIcon,
   WarningIcon,
 } from "@phosphor-icons/react"
+import { useSortable } from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 import type { Card, Column, Label } from "purple-server"
+import type { ComponentProps } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -23,9 +26,56 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import { relativeTime } from "@/lib/time"
+import { cardDndId, type DragData } from "@/features/board/dnd"
 import { LabelChip } from "@/features/labels/LabelChip"
 import { cardActions } from "./actions"
 import { CardStatus } from "./CardStatus"
+
+interface CardItemProps extends ComponentProps<"article"> {
+  card: Card
+  labels: Label[]
+  /** Custom columns on this board, excluding the card's current one. */
+  moveTargets: Column[]
+  onEdit: () => void
+  onDelete: () => void
+}
+
+/** A card that can be dragged within and between columns. */
+export function SortableCardItem({
+  columnId,
+  ...props
+}: CardItemProps & { columnId: number }) {
+  const { card } = props
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: cardDndId(card.id),
+    data: { type: "card", card, columnId } satisfies DragData,
+    disabled: card.status === "running",
+  })
+
+  return (
+    <CardItem
+      {...props}
+      {...attributes}
+      {...listeners}
+      // The card holds its own buttons; it's announced as sortable, not as a button.
+      role={undefined}
+      ref={(node) => {
+        setNodeRef(node)
+        setActivatorNodeRef(node)
+      }}
+      style={{ transform: CSS.Translate.toString(transform), transition }}
+      className={cn(isDragging && "opacity-40")}
+    />
+  )
+}
 
 export function CardItem({
   card,
@@ -33,14 +83,9 @@ export function CardItem({
   moveTargets,
   onEdit,
   onDelete,
-}: {
-  card: Card
-  labels: Label[]
-  /** Custom columns on this board, excluding the card's current one. */
-  moveTargets: Column[]
-  onEdit: () => void
-  onDelete: () => void
-}) {
+  className,
+  ...props
+}: CardItemProps) {
   const running = card.status === "running"
   const hasPrompt = card.prompt.trim().length > 0
   const cardLabels = card.labelIds
@@ -49,9 +94,11 @@ export function CardItem({
 
   return (
     <article
+      {...props}
       className={cn(
-        "group/card relative flex flex-col gap-2 border bg-card p-2.5 text-card-foreground transition-colors hover:border-foreground/25",
-        running && "border-primary/40 bg-primary/[0.03]"
+        "group/card relative flex flex-col gap-2 border bg-card p-2.5 text-card-foreground transition-colors outline-none hover:border-foreground/25 focus-visible:ring-2 focus-visible:ring-ring/50",
+        running && "border-primary/40 bg-primary/[0.03]",
+        className
       )}
     >
       {running && (

@@ -18,7 +18,7 @@ export const columnsController = new Elysia()
     params: idParams,
     body: ColumnModel.rename,
   })
-  .post("/columns/:id/move", ({ params, body }) => ColumnService.move(params.id, body.direction), {
+  .post("/columns/:id/move", ({ params, body }) => ColumnService.move(params.id, body.index), {
     params: idParams,
     body: ColumnModel.move,
   })

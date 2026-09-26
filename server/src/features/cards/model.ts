@@ -15,5 +15,5 @@ export const CardModel = {
     prompt: t.Optional(insertCard.properties.prompt),
     labelIds: t.Optional(labelIds),
   }),
-  move: t.Object({ columnId: t.Integer() }),
+  move: t.Object({ columnId: t.Integer(), index: t.Optional(t.Integer({ minimum: 0 })) }),
 }

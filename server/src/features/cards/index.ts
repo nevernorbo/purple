@@ -15,7 +15,7 @@ export const cardsController = new Elysia()
     params: idParams,
     body: CardModel.update,
   })
-  .post("/cards/:id/move", ({ params, body }) => CardService.move(params.id, body.columnId), {
+  .post("/cards/:id/move", ({ params, body }) => CardService.move(params.id, body.columnId, body.index), {
     params: idParams,
     body: CardModel.move,
   })

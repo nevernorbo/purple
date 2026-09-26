@@ -1,4 +1,4 @@
-import { asc, eq, inArray, max } from "drizzle-orm"
+import { and, asc, eq, inArray, max, ne } from "drizzle-orm"
 
 import { db } from "../../db/client"
 import { cardLabels, cards, columns, labels } from "../../db/schema"
@@ -107,9 +107,12 @@ export abstract class CardService {
     return card
   }
 
-  /** Moves a card to the bottom of a custom column, resetting it to backlog. */
-  static move(id: number, columnId: number): Card {
-    const card = db.transaction((tx) => {
+  /**
+   * Moves a card within or into a custom column, at `index` among the column's other cards
+   * (bottom when omitted). Changing columns resets it to backlog. Renumbers the column densely.
+   */
+  static move(id: number, columnId: number, index?: number): Card {
+    const changedIds = db.transaction((tx) => {
       const existing = CardService.get(id, tx)
       if (existing.status === "running") throw fail.conflict("Card is running")
       const target = tx.select().from(columns).where(eq(columns.id, columnId)).get()
@@ -117,20 +120,34 @@ export abstract class CardService {
       if (target.kind !== "custom" || target.repoId !== existing.repoId) {
         throw fail.badRequest("Cards can only be moved to custom columns on the same board")
       }
-      if (target.id !== existing.columnId) {
-        tx.update(cards)
-          .set({
-            columnId,
-            position: CardService.nextPosition(columnId, tx),
-            status: "backlog",
-          })
-          .where(eq(cards.id, id))
-          .run()
+      const sameColumn = target.id === existing.columnId
+      if (sameColumn && index === undefined) return []
+      if (!sameColumn) {
+        tx.update(cards).set({ columnId, status: "backlog" }).where(eq(cards.id, id)).run()
       }
-      return CardService.get(id, tx)
+
+      const ordered = tx
+        .select({ id: cards.id, position: cards.position })
+        .from(cards)
+        .where(and(eq(cards.columnId, columnId), ne(cards.id, id)))
+        .orderBy(asc(cards.position), asc(cards.id))
+        .all()
+      ordered.splice(Math.min(index ?? ordered.length, ordered.length), 0, {
+        id,
+        position: sameColumn ? existing.position : -1,
+      })
+      const changed: number[] = []
+      ordered.forEach((card, position) => {
+        if (card.id !== id && card.position === position) return
+        tx.update(cards).set({ position }).where(eq(cards.id, card.id)).run()
+        changed.push(card.id)
+      })
+      return changed
     })
-    bus.publish({ type: "card.upserted", card })
-    return card
+    for (const card of CardService.getMany(changedIds)) {
+      bus.publish({ type: "card.upserted", card })
+    }
+    return CardService.get(id)
   }
 
   static remove(id: number) {

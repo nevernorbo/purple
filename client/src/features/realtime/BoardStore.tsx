@@ -18,6 +18,8 @@ const MAX_BACKOFF_MS = 10_000
 
 interface BoardStore extends BoardState {
   connected: boolean
+  /** Applies an event locally, ahead of the server echo (optimistic updates). */
+  apply: (event: BoardEvent) => void
 }
 
 const BoardStoreContext = createContext<BoardStore | null>(null)
@@ -66,7 +68,9 @@ export function BoardStoreProvider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <BoardStoreContext.Provider value={{ ...state, connected }}>
+    <BoardStoreContext.Provider
+      value={{ ...state, connected, apply: dispatch }}
+    >
       {children}
     </BoardStoreContext.Provider>
   )

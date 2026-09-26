@@ -75,15 +75,14 @@ export abstract class ColumnService {
     return column
   }
 
-  /** Swaps a column with its neighbour; also renumbers positions densely. */
-  static move(id: number, direction: "left" | "right"): Column[] {
+  /** Moves a column to `index` (clamped); also renumbers positions densely. */
+  static move(id: number, index: number): Column[] {
     const { repoId } = ColumnService.get(id)
     const reordered = db.transaction((tx) => {
       const ordered = ColumnService.listByRepo(repoId, tx)
       const from = ordered.findIndex((c) => c.id === id)
-      const to = direction === "left" ? from - 1 : from + 1
-      if (to < 0 || to >= ordered.length) return ordered
-      ;[ordered[from], ordered[to]] = [ordered[to]!, ordered[from]!]
+      const [column] = ordered.splice(from, 1)
+      ordered.splice(Math.min(index, ordered.length), 0, column!)
       return ordered.map((c, position) =>
         tx.update(columns).set({ position }).where(eq(columns.id, c.id)).returning().get()!
       )

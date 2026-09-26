@@ -1,6 +1,10 @@
 import {
-  ArrowLeftIcon,
-  ArrowRightIcon,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
+import {
   CheckCircleIcon,
   CircleNotchIcon,
   DotsThreeIcon,
@@ -27,7 +31,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { api, call } from "@/lib/api"
 import { cn } from "@/lib/utils"
-import { CardItem } from "@/features/cards/CardItem"
+import { cardDndId, columnDndId, type DragData } from "@/features/board/dnd"
+import { SortableCardItem } from "@/features/cards/CardItem"
 import { AddCardComposer } from "./AddCardComposer"
 
 const SYSTEM_META: Record<
@@ -56,8 +61,6 @@ export function Column({
   totalCount,
   labels,
   customColumns,
-  isFirst,
-  isLast,
   filtering,
   onEditCard,
   onDeleteCard,
@@ -69,8 +72,6 @@ export function Column({
   totalCount: number
   labels: Label[]
   customColumns: ColumnType[]
-  isFirst: boolean
-  isLast: boolean
   filtering: boolean
   onEditCard: (card: Card) => void
   onDeleteCard: (card: Card) => void
@@ -89,18 +90,44 @@ export function Column({
     void call(api.columns({ id: column.id }).patch({ name: next }))
   }
 
-  const move = (direction: "left" | "right") =>
-    void call(api.columns({ id: column.id }).move.post({ direction }))
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: columnDndId(column.id),
+    data: { type: "column", column } satisfies DragData,
+    // Let text selection work while renaming.
+    disabled: { draggable: renaming },
+  })
 
   return (
     <section
+      ref={setNodeRef}
+      style={{ transform: CSS.Translate.toString(transform), transition }}
       aria-label={column.name}
       className={cn(
         "flex max-h-full w-72 shrink-0 flex-col border bg-muted/40",
-        hasRunning && "border-primary/30"
+        hasRunning && "border-primary/30",
+        isDragging && "relative z-10 opacity-80 shadow-lg"
       )}
     >
-      <header className="flex h-10 shrink-0 items-center gap-2 border-b px-2.5">
+      <header
+        ref={setActivatorNodeRef}
+        {...attributes}
+        {...listeners}
+        // The header holds its own buttons; it's announced as sortable, not as a button.
+        role={undefined}
+        className={cn(
+          "flex h-10 shrink-0 items-center gap-2 border-b px-2.5 outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset",
+          !renaming && "cursor-grab",
+          isDragging && "cursor-grabbing"
+        )}
+      >
         {system?.icon && (
           <span
             className={cn(
@@ -167,14 +194,6 @@ export function Column({
               <PencilSimpleIcon />
               Rename
             </DropdownMenuItem>
-            <DropdownMenuItem disabled={isFirst} onClick={() => move("left")}>
-              <ArrowLeftIcon />
-              Move left
-            </DropdownMenuItem>
-            <DropdownMenuItem disabled={isLast} onClick={() => move("right")}>
-              <ArrowRightIcon />
-              Move right
-            </DropdownMenuItem>
             {column.kind === "custom" && (
               <>
                 <DropdownMenuSeparator />
@@ -189,18 +208,24 @@ export function Column({
       </header>
 
       <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2">
-        {cards.map((card) => (
-          <CardItem
-            key={card.id}
-            card={card}
-            labels={labels}
-            moveTargets={
-              card.columnId === column.id ? moveTargets : customColumns
-            }
-            onEdit={() => onEditCard(card)}
-            onDelete={() => onDeleteCard(card)}
-          />
-        ))}
+        <SortableContext
+          items={cards.map((card) => cardDndId(card.id))}
+          strategy={verticalListSortingStrategy}
+        >
+          {cards.map((card) => (
+            <SortableCardItem
+              key={card.id}
+              card={card}
+              columnId={column.id}
+              labels={labels}
+              moveTargets={
+                card.columnId === column.id ? moveTargets : customColumns
+              }
+              onEdit={() => onEditCard(card)}
+              onDelete={() => onDeleteCard(card)}
+            />
+          ))}
+        </SortableContext>
         {cards.length === 0 && system && !filtering && (
           <p className="px-1 py-3 text-center text-[11px] text-muted-foreground">
             {system.empty}

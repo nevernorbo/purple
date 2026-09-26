@@ -34,15 +34,15 @@ describe("columns", () => {
     expect((await request("PATCH", `/columns/${running.id}`, { name: "In flight" })).data.name).toBe(
       "In flight"
     )
-    const { data: moved } = await request("POST", `/columns/${ready.id}/move`, { direction: "left" })
+    const { data: moved } = await request("POST", `/columns/${ready.id}/move`, { index: 2 })
     expect(moved.map((c: { kind: string }) => c.kind)).toEqual([
       "running",
       "completed",
       "custom",
       "failed",
     ])
-    const { data: edge } = await request("POST", `/columns/${running.id}/move`, { direction: "left" })
-    expect(edge[0].id).toBe(running.id)
+    const { data: edge } = await request("POST", `/columns/${running.id}/move`, { index: 99 })
+    expect(edge.at(-1).id).toBe(running.id)
 
     expect((await request("DELETE", `/columns/${running.id}`)).status).toBe(400)
     expect((await request("DELETE", `/columns/${ready.id}`)).status).toBe(200)
@@ -78,6 +78,38 @@ describe("cards", () => {
     expect((await request("POST", `/cards/${card.id}/move`, { columnId: completed.id })).status).toBe(
       400
     )
+  })
+
+  it("moves to an index within and across columns", async () => {
+    const { repoId, ready } = await setupBoard()
+    const { data: other } = await request("POST", `/repos/${repoId}/columns`, { name: "Later" })
+    const add = async (columnId: number, title: string) =>
+      (await request("POST", `/columns/${columnId}/cards`, { title })).data
+    const a = await add(ready.id, "a")
+    await add(ready.id, "b")
+    const c = await add(ready.id, "c")
+    const d = await add(other.id, "d")
+
+    const titlesIn = async (columnId: number) => {
+      const { data: cards } = await request("GET", "/cards")
+      return cards
+        .filter((card: { columnId: number }) => card.columnId === columnId)
+        .map((card: { title: string }) => card.title)
+    }
+
+    await request("POST", `/cards/${c.id}/move`, { columnId: ready.id, index: 0 })
+    expect(await titlesIn(ready.id)).toEqual(["c", "a", "b"])
+
+    await request("POST", `/cards/${d.id}/move`, { columnId: ready.id, index: 1 })
+    expect(await titlesIn(ready.id)).toEqual(["c", "d", "a", "b"])
+    expect(await titlesIn(other.id)).toEqual([])
+
+    await request("POST", `/cards/${a.id}/move`, { columnId: other.id, index: 5 })
+    expect(await titlesIn(other.id)).toEqual(["a"])
+
+    // No index within the same column is a no-op.
+    await request("POST", `/cards/${c.id}/move`, { columnId: ready.id })
+    expect(await titlesIn(ready.id)).toEqual(["c", "d", "b"])
   })
 
   it("appends to the bottom of a column", async () => {

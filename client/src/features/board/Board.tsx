@@ -1,3 +1,8 @@
+import { DndContext, DragOverlay } from "@dnd-kit/core"
+import {
+  horizontalListSortingStrategy,
+  SortableContext,
+} from "@dnd-kit/sortable"
 import {
   FolderSimpleIcon,
   MagnifyingGlassIcon,
@@ -19,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { CardDialog } from "@/features/cards/CardDialog"
+import { CardItem } from "@/features/cards/CardItem"
 import { cardActions } from "@/features/cards/actions"
 import { AddColumnComposer } from "@/features/columns/AddColumnComposer"
 import { Column } from "@/features/columns/Column"
@@ -29,9 +35,11 @@ import { useBoardStore } from "@/features/realtime/BoardStore"
 import { EmptyState } from "@/features/repositories/EmptyState"
 import { RepoSwitcher } from "@/features/repositories/RepoSwitcher"
 import { ReposDialog } from "@/features/repositories/ReposDialog"
+import { columnDndId } from "./dnd"
 import { matchesFilter } from "./filter"
 import { Logo } from "./Logo"
 import { StatusIndicators } from "./StatusIndicators"
+import { useBoardDnd } from "./useBoardDnd"
 import { useHashState } from "./useHashState"
 
 const byPosition = <T extends { position: number; id: number }>(a: T, b: T) =>
@@ -76,6 +84,25 @@ export function Board() {
     for (const list of all.values()) list.sort(byPosition)
     return all
   }, [store.cards, repo?.id])
+
+  const visibleByColumn = useMemo(() => {
+    if (!filtering) return cardsByColumn
+    const visible = new Map<number, Card[]>()
+    for (const [columnId, list] of cardsByColumn) {
+      visible.set(
+        columnId,
+        list.filter((c) => matchesFilter(c, hash.q, hash.labels))
+      )
+    }
+    return visible
+  }, [cardsByColumn, filtering, hash.q, hash.labels])
+
+  const dnd = useBoardDnd({
+    repoId: repo?.id ?? 0,
+    columns,
+    allByColumn: cardsByColumn,
+    visibleByColumn,
+  })
 
   // Look the card up live so the dialog reflects status changes while open.
   const editingCard = store.cards.find((c) => c.id === editingId) ?? null
@@ -134,31 +161,42 @@ export function Board() {
         <EmptyState onAdded={(repoId) => setHash({ repoId })} />
       ) : (
         repo && (
-          <main className="flex min-h-0 flex-1 items-start gap-3 overflow-x-auto p-4">
-            {columns.map((column, index) => {
-              const all = cardsByColumn.get(column.id) ?? []
-              const visible = filtering
-                ? all.filter((c) => matchesFilter(c, hash.q, hash.labels))
-                : all
-              return (
-                <Column
-                  key={column.id}
-                  column={column}
-                  cards={visible}
-                  totalCount={all.length}
+          <DndContext {...dnd.contextProps}>
+            <main className="flex min-h-0 flex-1 items-start gap-3 overflow-x-auto p-4">
+              <SortableContext
+                items={columns.map((c) => columnDndId(c.id))}
+                strategy={horizontalListSortingStrategy}
+              >
+                {columns.map((column) => (
+                  <Column
+                    key={column.id}
+                    column={column}
+                    cards={dnd.cardsFor(column.id)}
+                    totalCount={cardsByColumn.get(column.id)?.length ?? 0}
+                    labels={store.labels}
+                    customColumns={customColumns}
+                    filtering={filtering}
+                    onEditCard={(card) => setEditingId(card.id)}
+                    onDeleteCard={setDeletingCard}
+                    onDelete={() => setDeletingColumn(column)}
+                  />
+                ))}
+              </SortableContext>
+              <AddColumnComposer repoId={repo.id} />
+            </main>
+            <DragOverlay>
+              {dnd.activeCard && (
+                <CardItem
+                  card={dnd.activeCard}
                   labels={store.labels}
-                  customColumns={customColumns}
-                  isFirst={index === 0}
-                  isLast={index === columns.length - 1}
-                  filtering={filtering}
-                  onEditCard={(card) => setEditingId(card.id)}
-                  onDeleteCard={setDeletingCard}
-                  onDelete={() => setDeletingColumn(column)}
+                  moveTargets={[]}
+                  onEdit={() => {}}
+                  onDelete={() => {}}
+                  className="w-68 cursor-grabbing shadow-lg"
                 />
-              )
-            })}
-            <AddColumnComposer repoId={repo.id} />
-          </main>
+              )}
+            </DragOverlay>
+          </DndContext>
         )
       )}
 
