@@ -1,37 +1,52 @@
 import type { LabelColor } from "purple-server"
 
-export const LABEL_COLORS: Record<LabelColor, { dot: string; chip: string }> = {
+/**
+ * Label colors mapped onto Risk of Rain 2 item rarities. Stored names are kept;
+ * only the rendered hue changes (e.g. `teal` renders as equipment orange).
+ */
+export const LABEL_COLORS: Record<
+  LabelColor,
+  { dot: string; chip: string; rarity: string }
+> = {
   purple: {
-    dot: "bg-purple-500",
-    chip: "bg-purple-500/12 text-purple-700 ring-purple-500/30 dark:text-purple-300",
+    rarity: "Void",
+    dot: "bg-rarity-void",
+    chip: "border-l-rarity-void bg-rarity-void/14 text-rarity-void",
   },
   blue: {
-    dot: "bg-blue-500",
-    chip: "bg-blue-500/12 text-blue-700 ring-blue-500/30 dark:text-blue-300",
+    rarity: "Lunar",
+    dot: "bg-rarity-lunar",
+    chip: "border-l-rarity-lunar bg-rarity-lunar/14 text-rarity-lunar",
   },
   green: {
-    dot: "bg-green-500",
-    chip: "bg-green-500/12 text-green-700 ring-green-500/30 dark:text-green-300",
+    rarity: "Uncommon",
+    dot: "bg-rarity-uncommon",
+    chip: "border-l-rarity-uncommon bg-rarity-uncommon/14 text-rarity-uncommon",
   },
   amber: {
-    dot: "bg-amber-500",
-    chip: "bg-amber-500/15 text-amber-800 ring-amber-500/35 dark:text-amber-300",
+    rarity: "Boss",
+    dot: "bg-rarity-boss",
+    chip: "border-l-rarity-boss bg-rarity-boss/16 text-rarity-boss",
   },
   red: {
-    dot: "bg-red-500",
-    chip: "bg-red-500/12 text-red-700 ring-red-500/30 dark:text-red-300",
+    rarity: "Legendary",
+    dot: "bg-rarity-legendary",
+    chip: "border-l-rarity-legendary bg-rarity-legendary/14 text-rarity-legendary",
   },
   pink: {
-    dot: "bg-pink-500",
-    chip: "bg-pink-500/12 text-pink-700 ring-pink-500/30 dark:text-pink-300",
+    rarity: "Pink",
+    dot: "bg-rarity-pink",
+    chip: "border-l-rarity-pink bg-rarity-pink/14 text-rarity-pink",
   },
   teal: {
-    dot: "bg-teal-500",
-    chip: "bg-teal-500/12 text-teal-700 ring-teal-500/30 dark:text-teal-300",
+    rarity: "Equipment",
+    dot: "bg-rarity-equipment",
+    chip: "border-l-rarity-equipment bg-rarity-equipment/14 text-rarity-equipment",
   },
   slate: {
-    dot: "bg-slate-500",
-    chip: "bg-slate-500/12 text-slate-700 ring-slate-500/30 dark:text-slate-300",
+    rarity: "Common",
+    dot: "bg-rarity-common",
+    chip: "border-l-rarity-common bg-rarity-common/12 text-rarity-common",
   },
 }
 

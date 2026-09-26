@@ -40,11 +40,11 @@ function ColorSwatches({
           type="button"
           role="radio"
           aria-checked={value === color}
-          aria-label={color}
-          title={color}
+          aria-label={LABEL_COLORS[color].rarity}
+          title={LABEL_COLORS[color].rarity}
           onClick={() => onChange(color)}
           className={cn(
-            "size-5 ring-offset-2 ring-offset-popover outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            "size-6 shadow-[inset_0_1px_0_oklch(1_0_0/0.35),inset_0_-2px_0_oklch(0_0_0/0.2)] ring-offset-2 ring-offset-popover outline-none focus-visible:ring-2 focus-visible:ring-ring",
             LABEL_COLORS[color].dot,
             value === color && "ring-2 ring-foreground"
           )}
@@ -63,7 +63,10 @@ function ColorButton({ label }: { label: Label }) {
           <button
             type="button"
             aria-label={`Change color of ${label.name}`}
-            className={cn("size-5 shrink-0", LABEL_COLORS[label.color].dot)}
+            className={cn(
+              "size-6 shrink-0 shadow-[inset_0_1px_0_oklch(1_0_0/0.35),inset_0_-2px_0_oklch(0_0_0/0.2)]",
+              LABEL_COLORS[label.color].dot
+            )}
           />
         }
       />
@@ -141,10 +144,7 @@ export function LabelsDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Labels</DialogTitle>
-          <DialogDescription>
-            Shared across all boards. Deleting a label removes it from every
-            card.
-          </DialogDescription>
+          <DialogDescription>Shared by all boards.</DialogDescription>
         </DialogHeader>
 
         {labels.length > 0 && (
@@ -162,7 +162,7 @@ export function LabelsDialog({
               value={name}
               maxLength={40}
               onChange={(e) => setName(e.target.value)}
-              placeholder="New label name"
+              placeholder="New Label"
               aria-label="New label name"
             />
             <Button type="submit" disabled={!name.trim()}>

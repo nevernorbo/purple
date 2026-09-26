@@ -1,7 +1,8 @@
 import type { Label } from "purple-server"
-import { cn } from "@/lib/utils"
 
+import { Badge } from "@/components/ui/badge"
 import { LABEL_COLORS } from "@/lib/label-colors"
+import { cn } from "@/lib/utils"
 
 export function LabelChip({
   label,
@@ -11,15 +12,16 @@ export function LabelChip({
   className?: string
 }) {
   return (
-    <span
+    <Badge
+      variant="rarity"
       className={cn(
-        "inline-flex h-4.5 max-w-full items-center truncate px-1.5 text-[10px] font-medium ring-1 ring-inset",
+        "max-w-full justify-start truncate",
         LABEL_COLORS[label.color].chip,
         className
       )}
     >
-      {label.name}
-    </span>
+      <span className="truncate">{label.name}</span>
+    </Badge>
   )
 }
 
@@ -27,7 +29,10 @@ export function LabelDot({ label }: { label: Label }) {
   return (
     <span
       aria-hidden
-      className={cn("size-2 shrink-0", LABEL_COLORS[label.color].dot)}
+      className={cn(
+        "size-2.5 shrink-0 rotate-45",
+        LABEL_COLORS[label.color].dot
+      )}
     />
   )
 }

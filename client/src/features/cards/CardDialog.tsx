@@ -27,7 +27,7 @@ export function CardDialog({
 }) {
   return (
     <Dialog open={card !== null} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="max-sm:inset-0 max-sm:flex max-sm:h-svh max-sm:max-w-none max-sm:translate-0 max-sm:flex-col max-sm:overflow-y-auto sm:max-w-2xl">
         {/* Remount per card so the form starts from that card's values. */}
         {card && <CardForm key={card.id} card={card} onClose={onClose} />}
       </DialogContent>
@@ -57,21 +57,25 @@ function CardForm({ card, onClose }: { card: Card; onClose: () => void }) {
   }
 
   return (
-    <form onSubmit={save} className="grid gap-4">
+    <form onSubmit={save} className="flex min-h-0 flex-1 flex-col gap-5">
       <DialogHeader>
-        <DialogTitle>{locked ? "Running card" : "Edit card"}</DialogTitle>
-        <DialogDescription className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <span>#{card.id}</span>
+        <DialogTitle>{locked ? "Running" : "Edit Card"}</DialogTitle>
+        <DialogDescription className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+          <span className="hud-caps font-semibold tabular-nums">
+            #{card.id}
+          </span>
           <CardStatus card={card} />
-          {card.branch && <span className="font-mono">{card.branch}</span>}
+          {card.branch && (
+            <span className="min-w-0 truncate font-mono">{card.branch}</span>
+          )}
           {card.status === "failed" && (
-            <span>Log: data/logs/{card.id}.log</span>
+            <span className="font-mono">data/logs/{card.id}.log</span>
           )}
         </DialogDescription>
       </DialogHeader>
 
-      <div className="grid gap-4 sm:grid-cols-[1fr_12rem]">
-        <div className="flex flex-col gap-3">
+      <div className="grid gap-5 sm:grid-cols-[1fr_12rem]">
+        <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="card-title">Title</Label>
             <Input
@@ -90,25 +94,25 @@ function CardForm({ card, onClose }: { card: Card; onClose: () => void }) {
               disabled={locked}
               onChange={(e) => setPrompt(e.target.value)}
               rows={14}
-              placeholder="What should the agent do? Commit, push and PR instructions are appended automatically."
-              className="max-h-[50vh] min-h-48 font-mono text-xs"
+              placeholder="What should the agent do?"
+              className="max-h-[50vh] min-h-48 font-mono text-base leading-relaxed md:text-sm"
             />
           </div>
         </div>
         <div className="flex flex-col gap-1.5">
           <Label>Labels</Label>
-          <div className="max-h-72 overflow-y-auto border">
+          <div className="max-h-48 overflow-y-auto border bg-background/40 sm:max-h-72 dark:bg-black/20">
             <LabelPicker
               labels={labels}
               selected={labelIds}
               onChange={locked ? () => {} : setLabelIds}
-              empty="No labels yet."
+              empty="No Labels"
             />
           </div>
         </div>
       </div>
 
-      <DialogFooter>
+      <DialogFooter className="mt-auto">
         <Button type="button" variant="outline" onClick={onClose}>
           {locked ? "Close" : "Cancel"}
         </Button>

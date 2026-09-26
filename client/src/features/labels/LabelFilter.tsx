@@ -26,14 +26,14 @@ export function LabelFilter({
           <Button variant={active.length ? "secondary" : "outline"} size="sm">
             <FunnelSimpleIcon data-icon="inline-start" />
             {active.length
-              ? `${active.length} label${active.length > 1 ? "s" : ""}`
+              ? `${active.length} Label${active.length > 1 ? "s" : ""}`
               : "Filter"}
           </Button>
         }
       />
       <PopoverContent align="end" className="w-60 gap-1 p-1">
-        <div className="flex items-center justify-between px-2 pt-1 text-xs text-muted-foreground">
-          <span>Show cards with any of</span>
+        <div className="flex min-h-7 items-center justify-between px-2.5 pt-1 hud-caps text-xs font-semibold text-muted-foreground">
+          <span>Match Any</span>
           {active.length > 0 && (
             <Button
               variant="ghost"
@@ -49,7 +49,7 @@ export function LabelFilter({
           labels={labels}
           selected={active}
           onChange={onChange}
-          empty="No labels yet. Create some from the Labels manager."
+          empty="No Labels"
         />
       </PopoverContent>
     </Popover>

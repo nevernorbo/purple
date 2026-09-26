@@ -5,9 +5,37 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Risk of Rain 2's UI face. One weight only; see font-synthesis below. */
+@font-face {
+    font-family: "Bombardier";
+    src:
+        url("/bombardier/BOMBARD_.otf") format("opentype"),
+        url("/bombardier/BOMBARD_.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
 @theme inline {
-    --font-heading: var(--font-mono);
-    --font-mono: 'JetBrains Mono Variable', monospace;
+    --font-sans: 'Bombardier', ui-sans-serif, system-ui, sans-serif;
+    --font-heading: 'Bombardier', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+
+    --color-rarity-common: var(--rarity-common);
+    --color-rarity-uncommon: var(--rarity-uncommon);
+    --color-rarity-legendary: var(--rarity-legendary);
+    --color-rarity-boss: var(--rarity-boss);
+    --color-rarity-lunar: var(--rarity-lunar);
+    --color-rarity-void: var(--rarity-void);
+    --color-rarity-equipment: var(--rarity-equipment);
+    --color-rarity-pink: var(--rarity-pink);
+    --color-success: var(--success);
+    --color-warning: var(--warning);
+    --color-panel: var(--panel);
+    --color-panel-header: var(--panel-header);
+    --color-edge: var(--edge);
+    --color-glow: var(--glow);
+
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,83 +76,246 @@
     --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Light: pale snow — cool off-white surfaces, slate text, deepened rarity hues. */
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.52 0.21 300);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.62 0.18 300);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    --radius: 0rem;
+
+    --rarity-common: oklch(0.45 0.02 250);
+    --rarity-uncommon: oklch(0.48 0.15 145);
+    --rarity-legendary: oklch(0.52 0.2 25);
+    --rarity-boss: oklch(0.5 0.115 80);
+    --rarity-lunar: oklch(0.5 0.14 245);
+    --rarity-void: oklch(0.5 0.22 305);
+    --rarity-equipment: oklch(0.52 0.15 50);
+    --rarity-pink: oklch(0.54 0.19 355);
+    --success: var(--rarity-uncommon);
+    --warning: var(--rarity-boss);
+
+    --background: oklch(0.955 0.008 240);
+    --foreground: oklch(0.24 0.03 255);
+    --card: oklch(0.99 0.004 240);
+    --card-foreground: var(--foreground);
+    --popover: oklch(0.985 0.005 240 / 0.96);
+    --popover-foreground: var(--foreground);
+    --primary: var(--rarity-void);
+    --primary-foreground: oklch(0.99 0 0);
+    --secondary: oklch(0.915 0.013 245);
+    --secondary-foreground: var(--foreground);
+    --muted: oklch(0.93 0.01 245);
+    --muted-foreground: oklch(0.48 0.025 255);
+    --accent: oklch(0.9 0.025 285);
+    --accent-foreground: oklch(0.22 0.04 290);
+    --destructive: var(--rarity-legendary);
+    --border: oklch(0.3 0.04 255 / 16%);
+    --input: oklch(0.3 0.04 255 / 22%);
+    --ring: var(--rarity-void);
+
+    --panel: oklch(0.975 0.006 240 / 0.78);
+    --panel-header: oklch(0.915 0.015 245 / 0.92);
+    --edge: oklch(1 0 0 / 90%);
+    --tick: oklch(0.3 0.04 255 / 55%);
+    --glow: oklch(0.5 0.22 305 / 0.3);
+    --shadow-color: oklch(0.3 0.04 255 / 0.18);
+
+    --chart-1: var(--rarity-void);
+    --chart-2: var(--rarity-uncommon);
+    --chart-3: var(--rarity-lunar);
+    --chart-4: var(--rarity-boss);
+    --chart-5: var(--rarity-legendary);
+
+    --sidebar: oklch(0.935 0.012 245 / 0.92);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: oklch(0.89 0.02 250);
+    --sidebar-accent-foreground: var(--foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
+
+    --page-bg:
+        radial-gradient(90% 60% at 12% -10%, oklch(0.9 0.04 235 / 0.9), transparent 60%),
+        radial-gradient(120% 70% at 50% 115%, oklch(0.88 0.05 300 / 0.55), transparent 60%),
+        linear-gradient(180deg, oklch(0.965 0.008 240), oklch(0.93 0.012 245));
+    --page-vignette: radial-gradient(ellipse at center, transparent 60%, oklch(0.4 0.04 255 / 0.12));
+    --grain-opacity: 0.05;
 }
 
+/* Dark: in-run HUD — near-black blue sky, translucent slate panels, void glow. */
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.72 0.16 300);
-    --primary-foreground: oklch(0.18 0.03 300);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.6 0.16 300);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+    --rarity-common: oklch(0.93 0.01 250);
+    --rarity-uncommon: oklch(0.78 0.2 145);
+    --rarity-legendary: oklch(0.66 0.22 25);
+    --rarity-boss: oklch(0.87 0.17 95);
+    --rarity-lunar: oklch(0.72 0.14 240);
+    --rarity-void: oklch(0.7 0.2 305);
+    --rarity-equipment: oklch(0.76 0.16 60);
+    --rarity-pink: oklch(0.76 0.16 355);
+
+    --background: oklch(0.16 0.015 255);
+    --foreground: oklch(0.95 0.01 250);
+    --card: oklch(0.245 0.022 255);
+    --card-foreground: var(--foreground);
+    --popover: oklch(0.21 0.022 255 / 0.95);
+    --popover-foreground: var(--foreground);
+    --primary: var(--rarity-void);
+    --primary-foreground: oklch(0.16 0.04 305);
+    --secondary: oklch(0.29 0.025 255);
+    --secondary-foreground: var(--foreground);
+    --muted: oklch(0.27 0.02 255);
+    --muted-foreground: oklch(0.72 0.02 250);
+    --accent: oklch(0.32 0.05 290);
+    --accent-foreground: var(--foreground);
+    --destructive: var(--rarity-legendary);
+    --border: oklch(1 0 0 / 13%);
+    --input: oklch(1 0 0 / 17%);
+    --ring: var(--rarity-void);
+
+    --panel: oklch(0.2 0.02 255 / 0.72);
+    --panel-header: oklch(0.28 0.03 255 / 0.85);
+    --edge: oklch(1 0 0 / 22%);
+    --tick: oklch(1 0 0 / 55%);
+    --glow: oklch(0.7 0.2 305 / 0.5);
+    --shadow-color: oklch(0 0 0 / 0.55);
+
+    --sidebar: oklch(0.185 0.022 258 / 0.88);
+    --sidebar-accent: oklch(0.28 0.03 260);
+    --sidebar-accent-foreground: var(--foreground);
+
+    --page-bg:
+        radial-gradient(90% 60% at 12% -10%, oklch(0.34 0.05 240 / 0.45), transparent 60%),
+        radial-gradient(120% 70% at 50% 115%, oklch(0.34 0.1 300 / 0.4), transparent 60%),
+        linear-gradient(180deg, oklch(0.18 0.02 255), oklch(0.13 0.015 262));
+    --page-vignette: radial-gradient(ellipse at center, transparent 50%, oklch(0 0 0 / 0.5));
+    --grain-opacity: 0.07;
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+    * {
+        @apply border-border outline-ring/50;
     }
-  body {
-    @apply bg-background text-foreground;
+    html {
+        @apply font-sans;
+        color-scheme: light;
+        /* Bombardier ships a single weight; never fake bold or italics. */
+        font-synthesis: none;
     }
-  html {
-    @apply font-mono;
+    html.dark {
+        color-scheme: dark;
+    }
+    body {
+        @apply bg-background text-foreground antialiased;
+        background-image: var(--page-bg);
+        background-attachment: fixed;
+    }
+    /* Vignette and film grain sit behind the app, over the sky gradient. */
+    body::before,
+    body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+    }
+    body::before {
+        background: var(--page-vignette);
+    }
+    body::after {
+        opacity: var(--grain-opacity);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+    #root {
+        position: relative;
+        z-index: 1;
+    }
+}
+
+/* Translucent HUD panel: glassy fill, hairline border, bright top edge. */
+@utility hud-panel {
+    background-color: var(--panel);
+    border: 1px solid var(--border);
+    box-shadow:
+        inset 0 1px 0 var(--edge),
+        0 10px 30px -18px var(--shadow-color);
+    backdrop-filter: blur(10px);
+}
+
+/* Floating surfaces (menus, popovers, dialogs). Replaces shadcn's ring + shadow. */
+@utility hud-popup {
+    border: 1px solid var(--border);
+    box-shadow:
+        inset 0 1px 0 var(--edge),
+        0 18px 40px -14px var(--shadow-color);
+    backdrop-filter: blur(12px);
+}
+
+/* L-shaped ticks on all four corners, drawn on ::before. The host must be positioned. */
+@utility hud-corners {
+    &::before {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        pointer-events: none;
+        z-index: 1;
+        --tick-len: 10px;
+        --tick-w: 2px;
+        background:
+            linear-gradient(var(--tick), var(--tick)) top left / var(--tick-len) var(--tick-w) no-repeat,
+            linear-gradient(var(--tick), var(--tick)) top left / var(--tick-w) var(--tick-len) no-repeat,
+            linear-gradient(var(--tick), var(--tick)) top right / var(--tick-len) var(--tick-w) no-repeat,
+            linear-gradient(var(--tick), var(--tick)) top right / var(--tick-w) var(--tick-len) no-repeat,
+            linear-gradient(var(--tick), var(--tick)) bottom left / var(--tick-len) var(--tick-w) no-repeat,
+            linear-gradient(var(--tick), var(--tick)) bottom left / var(--tick-w) var(--tick-len) no-repeat,
+            linear-gradient(var(--tick), var(--tick)) bottom right / var(--tick-len) var(--tick-w) no-repeat,
+            linear-gradient(var(--tick), var(--tick)) bottom right / var(--tick-w) var(--tick-len) no-repeat;
+    }
+}
+
+/* Logbook-style bevelled header strip with an accent underline. */
+@utility logbook-header {
+    background-image: linear-gradient(180deg, var(--panel-header), color-mix(in oklch, var(--panel-header) 55%, transparent));
+    border-bottom: 1px solid var(--border);
+    box-shadow:
+        inset 0 1px 0 var(--edge),
+        inset 0 -1px 0 color-mix(in oklch, var(--primary) 35%, transparent);
+}
+
+/* Condensed all-caps display text. */
+@utility hud-caps {
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+@utility glow-primary {
+    box-shadow:
+        0 0 0 1px color-mix(in oklch, var(--primary) 55%, transparent),
+        0 0 18px -4px var(--glow);
+}
+
+@utility animate-glow {
+    animation: hud-glow 2.4s ease-in-out infinite;
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+    }
+}
+
+@keyframes hud-glow {
+    0%,
+    100% {
+        box-shadow:
+            0 0 0 1px color-mix(in oklch, var(--primary) 45%, transparent),
+            0 0 10px -6px var(--glow);
+    }
+    50% {
+        box-shadow:
+            0 0 0 1px color-mix(in oklch, var(--primary) 75%, transparent),
+            0 0 22px -4px var(--glow);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-ping,
+    .animate-pulse {
+        animation: none;
     }
 }

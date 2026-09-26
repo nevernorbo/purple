@@ -56,20 +56,19 @@ export function DeleteColumnDialog({
     >
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete “{column?.name}”?</AlertDialogTitle>
+          <AlertDialogTitle>Delete {column?.name}?</AlertDialogTitle>
           <AlertDialogDescription>
-            {!needsTarget && "The column is empty."}
+            {!needsTarget && "Empty column."}
             {needsTarget &&
               !blocked &&
-              `Its ${cardCount} card${cardCount === 1 ? "" : "s"} will be moved to the column you pick.`}
-            {blocked &&
-              "It still has cards and there's no other custom column to move them to. Create one or delete the cards first."}
+              `Move ${cardCount} card${cardCount === 1 ? "" : "s"} to:`}
+            {blocked && "Its cards have nowhere to go. Add a column first."}
           </AlertDialogDescription>
         </AlertDialogHeader>
         {needsTarget && !blocked && (
           <Select items={items} value={target} onValueChange={setTarget}>
             <SelectTrigger className="w-full" aria-label="Move cards to">
-              <SelectValue placeholder="Move cards to…" />
+              <SelectValue placeholder="Move To" />
             </SelectTrigger>
             <SelectContent alignItemWithTrigger={false}>
               {items.map((item) => (
@@ -87,7 +86,7 @@ export function DeleteColumnDialog({
             disabled={blocked || (needsTarget && target === null)}
             onClick={confirm}
           >
-            Delete column
+            Delete
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

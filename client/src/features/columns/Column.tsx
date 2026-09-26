@@ -5,20 +5,13 @@ import {
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import {
-  CheckCircleIcon,
-  CircleNotchIcon,
+  CaretLineRightIcon,
   DotsThreeIcon,
   PencilSimpleIcon,
   TrashIcon,
-  XCircleIcon,
 } from "@phosphor-icons/react"
-import type {
-  Card,
-  Column as ColumnType,
-  ColumnKind,
-  Label,
-} from "purple-server"
-import { useState, type ReactNode } from "react"
+import type { Card, Column as ColumnType, Label } from "purple-server"
+import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -34,26 +27,7 @@ import { cn } from "@/lib/utils"
 import { cardDndId, columnDndId, type DragData } from "@/features/board/dnd"
 import { SortableCardItem } from "@/features/cards/CardItem"
 import { AddCardComposer } from "./AddCardComposer"
-
-const SYSTEM_META: Record<
-  Exclude<ColumnKind, "custom">,
-  { icon: ReactNode; empty: string }
-> = {
-  running: {
-    icon: <CircleNotchIcon className="size-3.5 text-primary" />,
-    empty: "Started cards run here.",
-  },
-  completed: {
-    icon: (
-      <CheckCircleIcon className="size-3.5 text-green-600 dark:text-green-400" />
-    ),
-    empty: "Finished runs land here with their PR.",
-  },
-  failed: {
-    icon: <XCircleIcon className="size-3.5 text-destructive" />,
-    empty: "Failed or stopped runs land here.",
-  },
-}
+import { SYSTEM_META } from "./system"
 
 export function Column({
   column,
@@ -62,6 +36,9 @@ export function Column({
   labels,
   customColumns,
   filtering,
+  layout = "desktop",
+  collapsed = false,
+  onToggleCollapsed,
   onEditCard,
   onDeleteCard,
   onDelete,
@@ -73,6 +50,11 @@ export function Column({
   labels: Label[]
   customColumns: ColumnType[]
   filtering: boolean
+  /** `mobile` fills its (full-width) container and can't be reordered. */
+  layout?: "desktop" | "mobile"
+  /** Collapsed to a thin rail (desktop system columns only). */
+  collapsed?: boolean
+  onToggleCollapsed?: () => void
   onEditCard: (card: Card) => void
   onDeleteCard: (card: Card) => void
   onDelete: () => void
@@ -82,6 +64,16 @@ export function Column({
   const system = column.kind === "custom" ? null : SYSTEM_META[column.kind]
   const moveTargets = customColumns.filter((c) => c.id !== column.id)
   const hasRunning = column.kind === "running" && totalCount > 0
+  const mobile = layout === "mobile"
+  const count =
+    filtering && cards.length !== totalCount
+      ? `${cards.length}/${totalCount}`
+      : totalCount
+
+  const startRename = () => {
+    setName(column.name)
+    setRenaming(true)
+  }
 
   const commitRename = () => {
     setRenaming(false)
@@ -101,9 +93,38 @@ export function Column({
   } = useSortable({
     id: columnDndId(column.id),
     data: { type: "column", column } satisfies DragData,
-    // Let text selection work while renaming.
-    disabled: { draggable: renaming },
+    // System columns stay put (they still register as drop targets so a card
+    // can go back where it came from); text selection works while renaming.
+    disabled: { draggable: renaming || system !== null || mobile },
   })
+  const draggable = !renaming && system === null && !mobile
+
+  if (collapsed && system) {
+    return (
+      <section
+        ref={setNodeRef}
+        aria-label={column.name}
+        className="relative flex max-h-full w-11 shrink-0 flex-col items-center hud-panel"
+      >
+        <span aria-hidden className={cn("h-0.5 w-full", system.accent)} />
+        <button
+          type="button"
+          onClick={onToggleCollapsed}
+          aria-label={`Expand ${column.name}`}
+          aria-expanded={false}
+          className="flex flex-1 flex-col items-center gap-3 px-1 py-3 outline-none hover:bg-foreground/5 focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset"
+        >
+          <span className={system.text}>{system.icon}</span>
+          <span className="border px-1 hud-caps text-sm font-bold text-muted-foreground tabular-nums">
+            {count}
+          </span>
+          <span className="hud-caps text-base font-bold tracking-wider [writing-mode:vertical-rl]">
+            {column.name}
+          </span>
+        </button>
+      </section>
+    )
+  }
 
   return (
     <section
@@ -111,28 +132,32 @@ export function Column({
       style={{ transform: CSS.Translate.toString(transform), transition }}
       aria-label={column.name}
       className={cn(
-        "flex max-h-full w-72 shrink-0 flex-col border bg-muted/40",
-        hasRunning && "border-primary/30",
-        isDragging && "relative z-10 opacity-80 shadow-lg"
+        "group/column hud-corners relative flex shrink-0 flex-col hud-panel",
+        mobile ? "h-full w-full" : "max-h-full w-80",
+        hasRunning && "border-primary/40",
+        isDragging && "z-10 opacity-80 shadow-2xl"
       )}
     >
+      {system && (
+        <span
+          aria-hidden
+          className={cn("absolute inset-x-0 top-0 h-0.5", system.accent)}
+        />
+      )}
       <header
         ref={setActivatorNodeRef}
-        {...attributes}
-        {...listeners}
+        {...(draggable ? { ...attributes, ...listeners } : {})}
         // The header holds its own buttons; it's announced as sortable, not as a button.
         role={undefined}
         className={cn(
-          "flex h-10 shrink-0 items-center gap-2 border-b px-2.5 outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset",
-          !renaming && "cursor-grab",
+          "flex h-14 shrink-0 items-center gap-2 border-b bg-panel-header/60 px-3 outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset",
+          draggable && "cursor-grab",
           isDragging && "cursor-grabbing"
         )}
       >
-        {system?.icon && (
+        {system && (
           <span
-            className={cn(
-              column.kind === "running" && hasRunning && "[&_svg]:animate-spin"
-            )}
+            className={cn(system.text, hasRunning && "[&_svg]:animate-spin")}
           >
             {system.icon}
           </span>
@@ -151,63 +176,73 @@ export function Column({
                 setRenaming(false)
               }
             }}
-            className="h-7 bg-card"
+            className="h-8"
             aria-label="Column name"
           />
         ) : (
-          <h2
-            className="min-w-0 flex-1 cursor-text truncate text-xs font-semibold"
-            onDoubleClick={() => {
-              setName(column.name)
-              setRenaming(true)
-            }}
-          >
-            {column.name}
-          </h2>
-        )}
-        {!renaming && (
-          <span className="text-[11px] text-muted-foreground tabular-nums">
-            {filtering && cards.length !== totalCount
-              ? `${cards.length}/${totalCount}`
-              : totalCount}
-          </span>
-        )}
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                variant="ghost"
-                size="icon-xs"
-                aria-label="Column actions"
-              />
-            }
-          >
-            <DotsThreeIcon weight="bold" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem
-              onClick={() => {
-                setName(column.name)
-                setRenaming(true)
-              }}
+          <>
+            <h2
+              className="min-w-0 truncate hud-caps text-xl leading-tight font-normal"
+              onDoubleClick={startRename}
+            >
+              {column.name}
+            </h2>
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              aria-label={`Rename ${column.name}`}
+              onClick={startRename}
+              className="opacity-0 group-hover/column:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100"
             >
               <PencilSimpleIcon />
-              Rename
-            </DropdownMenuItem>
-            {column.kind === "custom" && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem variant="destructive" onClick={onDelete}>
-                  <TrashIcon />
-                  Delete column
-                </DropdownMenuItem>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </Button>
+          </>
+        )}
+        {!renaming && (
+          <span className="ml-auto min-w-6 border bg-background/40 px-1.5 text-center hud-caps text-sm leading-5 font-bold text-muted-foreground tabular-nums">
+            {count}
+          </span>
+        )}
+        {onToggleCollapsed && !renaming && (
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            aria-label={`Collapse ${column.name}`}
+            aria-expanded
+            onClick={onToggleCollapsed}
+          >
+            <CaretLineRightIcon />
+          </Button>
+        )}
+        {system === null && (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  aria-label="Column actions"
+                />
+              }
+            >
+              <DotsThreeIcon weight="bold" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-44">
+              <DropdownMenuItem onClick={startRename}>
+                <PencilSimpleIcon />
+                Rename
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem variant="destructive" onClick={onDelete}>
+                <TrashIcon />
+                Delete Column
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </header>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2">
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3">
         <SortableContext
           items={cards.map((card) => cardDndId(card.id))}
           strategy={verticalListSortingStrategy}
@@ -227,13 +262,13 @@ export function Column({
           ))}
         </SortableContext>
         {cards.length === 0 && system && !filtering && (
-          <p className="px-1 py-3 text-center text-[11px] text-muted-foreground">
+          <p className="px-2 py-8 text-center hud-caps text-base text-muted-foreground">
             {system.empty}
           </p>
         )}
         {cards.length === 0 && filtering && totalCount > 0 && (
-          <p className="px-1 py-3 text-center text-[11px] text-muted-foreground">
-            No cards match the filter.
+          <p className="px-2 py-8 text-center hud-caps text-base text-muted-foreground">
+            No Matches
           </p>
         )}
         {column.kind === "custom" && <AddCardComposer columnId={column.id} />}

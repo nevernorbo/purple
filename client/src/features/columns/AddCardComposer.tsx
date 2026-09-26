@@ -56,17 +56,17 @@ export function AddCardComposer({ columnId }: { columnId: number }) {
       <Button
         variant="ghost"
         size="sm"
-        className="w-full justify-start text-muted-foreground"
+        className="w-full justify-start border border-dashed border-transparent hover:border-foreground/20"
         onClick={() => setOpen(true)}
       >
         <PlusIcon data-icon="inline-start" />
-        Add a card
+        Add Card
       </Button>
     )
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-2">
+    <form onSubmit={submit} className="flex flex-col gap-3">
       <Textarea
         ref={titleRef}
         autoFocus
@@ -75,9 +75,9 @@ export function AddCardComposer({ columnId }: { columnId: number }) {
         maxLength={200}
         onChange={(e) => setTitle(e.target.value)}
         onKeyDown={onKeyDown}
-        placeholder="Card title…"
+        placeholder="Card Title"
         aria-label="Card title"
-        className="min-h-0 resize-none bg-card text-xs"
+        className="min-h-0 resize-none bg-card"
       />
       {showPrompt ? (
         <Textarea
@@ -85,14 +85,14 @@ export function AddCardComposer({ columnId }: { columnId: number }) {
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={onKeyDown}
-          placeholder="Prompt for the agent (⌘↵ to add)"
+          placeholder="Agent Prompt (⌘↵)"
           aria-label="Prompt"
-          className="bg-card font-mono text-[11px]"
+          className="bg-card font-mono text-base leading-relaxed md:text-sm"
         />
       ) : null}
       <div className="flex items-center gap-1">
         <Button type="submit" size="sm" disabled={!title.trim()}>
-          Add card
+          Add
         </Button>
         <Button
           type="button"
@@ -111,7 +111,7 @@ export function AddCardComposer({ columnId }: { columnId: number }) {
             className="ml-auto text-muted-foreground"
             onClick={() => setShowPrompt(true)}
           >
-            + prompt
+            + Prompt
           </Button>
         )}
       </div>

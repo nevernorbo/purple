@@ -3,12 +3,19 @@ import { cn } from "@/lib/utils"
 export function StatusIndicators({
   running,
   connected,
+  className,
 }: {
   running: number
   connected: boolean
+  className?: string
 }) {
   return (
-    <div className="flex items-center gap-3 text-xs">
+    <div
+      className={cn(
+        "flex items-center gap-3 hud-caps text-sm font-semibold",
+        className
+      )}
+    >
       <span
         className={cn(
           "inline-flex items-center gap-1.5 tabular-nums",
@@ -22,26 +29,27 @@ export function StatusIndicators({
           )}
           <span
             className={cn(
-              "relative inline-flex size-2",
+              "relative inline-flex size-2 rotate-45",
               running > 0 ? "bg-primary" : "bg-muted-foreground/40"
             )}
           />
         </span>
-        {running} running
+        {running} Running
       </span>
       <span
-        className="inline-flex items-center gap-1.5 text-muted-foreground"
-        title={connected ? "Live updates connected" : "Reconnecting…"}
+        className={cn(
+          "inline-flex items-center gap-1.5",
+          connected ? "text-success" : "text-warning"
+        )}
+        title={connected ? "Live Updates" : "Reconnecting"}
       >
         <span
           className={cn(
-            "size-2 rounded-full",
-            connected ? "bg-green-500" : "bg-amber-500"
+            "size-2 rotate-45",
+            connected ? "bg-success" : "bg-warning"
           )}
         />
-        <span className="hidden sm:inline">
-          {connected ? "live" : "offline"}
-        </span>
+        {connected ? "Live" : "Offline"}
       </span>
     </div>
   )

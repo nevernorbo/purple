@@ -3,13 +3,15 @@ import {
   horizontalListSortingStrategy,
   SortableContext,
 } from "@dnd-kit/sortable"
+import { GitBranchIcon, MagnifyingGlassIcon } from "@phosphor-icons/react"
+import type { Card, ColumnKind, Column as ColumnType } from "purple-server"
 import {
-  FolderSimpleIcon,
-  MagnifyingGlassIcon,
-  TagIcon,
-} from "@phosphor-icons/react"
-import type { Card, Column as ColumnType } from "purple-server"
-import { useEffect, useMemo, useState } from "react"
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ComponentProps,
+} from "react"
 
 import {
   AlertDialog,
@@ -21,34 +23,69 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { Skeleton } from "@/components/ui/skeleton"
+import { cardActions } from "@/features/cards/actions"
 import { CardDialog } from "@/features/cards/CardDialog"
 import { CardItem } from "@/features/cards/CardItem"
-import { cardActions } from "@/features/cards/actions"
 import { AddColumnComposer } from "@/features/columns/AddColumnComposer"
 import { Column } from "@/features/columns/Column"
 import { DeleteColumnDialog } from "@/features/columns/DeleteColumnDialog"
+import { SYSTEM_ORDER } from "@/features/columns/system"
 import { LabelFilter } from "@/features/labels/LabelFilter"
 import { LabelsDialog } from "@/features/labels/LabelsDialog"
 import { useBoardStore } from "@/features/realtime/BoardStore"
 import { EmptyState } from "@/features/repositories/EmptyState"
-import { RepoSwitcher } from "@/features/repositories/RepoSwitcher"
-import { ReposDialog } from "@/features/repositories/ReposDialog"
+import { useIsMobile } from "@/hooks/use-mobile"
+import { AppSidebar } from "./AppSidebar"
 import { columnDndId } from "./dnd"
 import { matchesFilter } from "./filter"
-import { Logo } from "./Logo"
-import { StatusIndicators } from "./StatusIndicators"
+import { MobileBoard } from "./MobileBoard"
+import { MobileFilterSheet } from "./MobileFilterSheet"
 import { useBoardDnd } from "./useBoardDnd"
 import { useHashState } from "./useHashState"
 
 const byPosition = <T extends { position: number; id: number }>(a: T, b: T) =>
   a.position - b.position || a.id - b.id
 
+const COLLAPSED_KEY = "purple.collapsedColumns"
+
+/** Which system column kinds are collapsed to a rail, remembered per browser. */
+function useCollapsedKinds() {
+  const [kinds, setKinds] = useState<ColumnKind[]>(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(COLLAPSED_KEY) ?? "[]")
+      return Array.isArray(stored) ? stored : []
+    } catch {
+      return []
+    }
+  })
+  const toggle = useCallback((kind: ColumnKind) => {
+    setKinds((current) => {
+      const next = current.includes(kind)
+        ? current.filter((k) => k !== kind)
+        : [...current, kind]
+      try {
+        localStorage.setItem(COLLAPSED_KEY, JSON.stringify(next))
+      } catch {
+        // Storage can be unavailable (private mode); collapsing still works.
+      }
+      return next
+    })
+  }, [])
+  return [kinds, toggle] as const
+}
+
+/** The sidebar component writes its open state to a cookie; read it back. */
+const sidebarDefaultOpen = () =>
+  !document.cookie.includes("sidebar_state=false")
+
 export function Board() {
   const store = useBoardStore()
   const [hash, setHash] = useHashState()
-  const [reposOpen, setReposOpen] = useState(false)
+  const isMobile = useIsMobile()
+  const [collapsedKinds, toggleCollapsed] = useCollapsedKinds()
   const [labelsOpen, setLabelsOpen] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [deletingCard, setDeletingCard] = useState<Card | null>(null)
@@ -69,6 +106,11 @@ export function Board() {
   )
   const customColumns = useMemo(
     () => columns.filter((c) => c.kind === "custom"),
+    [columns]
+  )
+  const systemColumns = useMemo(
+    () =>
+      SYSTEM_ORDER.flatMap((kind) => columns.filter((c) => c.kind === kind)),
     [columns]
   )
   const filtering = hash.q.trim() !== "" || hash.labels.length > 0
@@ -97,116 +139,155 @@ export function Board() {
     return visible
   }, [cardsByColumn, filtering, hash.q, hash.labels])
 
+  const counts = useMemo(
+    () =>
+      new Map(columns.map((c) => [c.id, cardsByColumn.get(c.id)?.length ?? 0])),
+    [columns, cardsByColumn]
+  )
+
   const dnd = useBoardDnd({
     repoId: repo?.id ?? 0,
     columns,
     allByColumn: cardsByColumn,
     visibleByColumn,
+    lockToColumn: isMobile,
   })
 
   // Look the card up live so the dialog reflects status changes while open.
   const editingCard = store.cards.find((c) => c.id === editingId) ?? null
 
-  return (
-    <div className="flex h-svh flex-col">
-      <header className="flex shrink-0 flex-wrap items-center gap-2 border-b px-4 py-2">
-        <Logo />
-        <span aria-hidden className="mx-1 h-4 w-px bg-border" />
-        {store.repos.length > 0 && (
-          <RepoSwitcher
-            repoId={repo?.id ?? null}
-            onChange={(repoId) => setHash({ repoId })}
-          />
-        )}
-        {repo && (
-          <>
-            <div className="relative">
-              <MagnifyingGlassIcon className="pointer-events-none absolute top-1/2 left-2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="search"
-                value={hash.q}
-                onChange={(e) => setHash({ q: e.target.value })}
-                placeholder="Search cards"
-                aria-label="Search cards"
-                className="h-7 w-52 pl-7"
-              />
-            </div>
-            <LabelFilter
-              selected={hash.labels}
-              onChange={(labels) => setHash({ labels })}
-            />
-          </>
-        )}
-        <div className="ml-auto flex items-center gap-2">
-          <StatusIndicators
-            running={store.running}
-            connected={store.connected}
-          />
-          <Button variant="ghost" size="sm" onClick={() => setLabelsOpen(true)}>
-            <TagIcon data-icon="inline-start" />
-            Labels
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => setReposOpen(true)}>
-            <FolderSimpleIcon data-icon="inline-start" />
-            Repos
-          </Button>
-        </div>
-      </header>
+  const renderColumn = (
+    column: ColumnType,
+    extra?: Partial<ComponentProps<typeof Column>>
+  ) => (
+    <Column
+      key={column.id}
+      column={column}
+      cards={dnd.cardsFor(column.id)}
+      totalCount={counts.get(column.id) ?? 0}
+      labels={store.labels}
+      customColumns={customColumns}
+      filtering={filtering}
+      onEditCard={(card) => setEditingId(card.id)}
+      onDeleteCard={setDeletingCard}
+      onDelete={() => setDeletingColumn(column)}
+      {...extra}
+    />
+  )
 
-      {!store.loaded ? (
-        <div className="flex flex-1 items-center justify-center text-xs text-muted-foreground">
-          Connecting…
-        </div>
-      ) : store.repos.length === 0 ? (
-        <EmptyState onAdded={(repoId) => setHash({ repoId })} />
-      ) : (
-        repo && (
-          <DndContext {...dnd.contextProps}>
-            <main className="flex min-h-0 flex-1 items-start gap-3 overflow-x-auto p-4">
-              <SortableContext
-                items={columns.map((c) => columnDndId(c.id))}
-                strategy={horizontalListSortingStrategy}
-              >
-                {columns.map((column) => (
-                  <Column
-                    key={column.id}
-                    column={column}
-                    cards={dnd.cardsFor(column.id)}
-                    totalCount={cardsByColumn.get(column.id)?.length ?? 0}
-                    labels={store.labels}
-                    customColumns={customColumns}
-                    filtering={filtering}
-                    onEditCard={(card) => setEditingId(card.id)}
-                    onDeleteCard={setDeletingCard}
-                    onDelete={() => setDeletingColumn(column)}
-                  />
-                ))}
-              </SortableContext>
-              <AddColumnComposer repoId={repo.id} />
-            </main>
-            <DragOverlay>
-              {dnd.activeCard && (
-                <CardItem
-                  card={dnd.activeCard}
-                  labels={store.labels}
-                  moveTargets={[]}
-                  onEdit={() => {}}
-                  onDelete={() => {}}
-                  className="w-68 cursor-grabbing shadow-lg"
+  return (
+    <SidebarProvider defaultOpen={sidebarDefaultOpen()} className="h-svh">
+      <AppSidebar
+        repoId={repo?.id ?? null}
+        onSelect={(repoId) => setHash({ repoId })}
+        onOpenLabels={() => setLabelsOpen(true)}
+      />
+      <SidebarInset className="h-svh min-w-0 overflow-hidden">
+        <header className="flex h-16 shrink-0 items-center gap-3 border-b bg-panel/70 px-3 shadow-[inset_0_-1px_0_color-mix(in_oklch,var(--primary)_25%,transparent)] backdrop-blur-md md:px-4">
+          <GitBranchIcon />
+          <h1 className="min-w-0 truncate hud-caps text-2xl leading-tight font-normal md:text-3xl">
+            {repo?.name ?? "Purple"}
+          </h1>
+          {repo &&
+            (isMobile ? (
+              <div className="ml-auto">
+                <MobileFilterSheet
+                  q={hash.q}
+                  labels={hash.labels}
+                  onChange={setHash}
                 />
+              </div>
+            ) : (
+              <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-2">
+                <div className="relative w-full max-w-xs">
+                  <MagnifyingGlassIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    value={hash.q}
+                    onChange={(e) => setHash({ q: e.target.value })}
+                    placeholder="SEARCH"
+                    aria-label="Search cards"
+                    className="h-10 pl-8"
+                  />
+                </div>
+                <LabelFilter
+                  selected={hash.labels}
+                  onChange={(labels) => setHash({ labels })}
+                />
+              </div>
+            ))}
+        </header>
+
+        {!store.loaded ? (
+          <BoardSkeleton mobile={isMobile} />
+        ) : store.repos.length === 0 ? (
+          <EmptyState onAdded={(repoId) => setHash({ repoId })} />
+        ) : (
+          repo && (
+            <DndContext {...dnd.contextProps}>
+              {isMobile ? (
+                <MobileBoard
+                  // Start on the first column again when switching boards.
+                  key={repo.id}
+                  repoId={repo.id}
+                  columns={[...customColumns, ...systemColumns]}
+                  counts={counts}
+                  renderColumn={(column) =>
+                    renderColumn(column, { layout: "mobile" })
+                  }
+                />
+              ) : (
+                <div className="flex min-h-0 flex-1 items-start gap-4 overflow-x-auto p-5">
+                  <SortableContext
+                    items={customColumns.map((c) => columnDndId(c.id))}
+                    strategy={horizontalListSortingStrategy}
+                  >
+                    {customColumns.map((column) => renderColumn(column))}
+                  </SortableContext>
+                  <AddColumnComposer repoId={repo.id} />
+                  {systemColumns.length > 0 && (
+                    <div
+                      aria-hidden
+                      className="mx-1 w-px shrink-0 self-stretch bg-linear-to-b from-transparent via-border to-transparent"
+                    />
+                  )}
+                  {systemColumns.map((column) =>
+                    renderColumn(
+                      column,
+                      column.kind === "running"
+                        ? undefined
+                        : {
+                            collapsed: collapsedKinds.includes(column.kind),
+                            onToggleCollapsed: () =>
+                              toggleCollapsed(column.kind),
+                          }
+                    )
+                  )}
+                </div>
               )}
-            </DragOverlay>
-          </DndContext>
-        )
-      )}
+              <DragOverlay>
+                {dnd.activeCard && (
+                  <CardItem
+                    card={dnd.activeCard}
+                    labels={store.labels}
+                    moveTargets={[]}
+                    onEdit={() => {}}
+                    onDelete={() => {}}
+                    className={
+                      isMobile
+                        ? "w-[calc(100vw-50px)] cursor-grabbing shadow-2xl"
+                        : "w-73.5 cursor-grabbing shadow-2xl"
+                    }
+                  />
+                )}
+              </DragOverlay>
+            </DndContext>
+          )
+        )}
+      </SidebarInset>
 
       <CardDialog card={editingCard} onClose={() => setEditingId(null)} />
       <LabelsDialog open={labelsOpen} onOpenChange={setLabelsOpen} />
-      <ReposDialog
-        open={reposOpen}
-        onOpenChange={setReposOpen}
-        onSelect={(repoId) => setHash({ repoId })}
-      />
       <DeleteColumnDialog
         column={deletingColumn}
         cardCount={
@@ -223,10 +304,10 @@ export function Board() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete “{deletingCard?.title}”?</AlertDialogTitle>
+            <AlertDialogTitle>Delete Card?</AlertDialogTitle>
             <AlertDialogDescription>
-              The card is removed from Purple. Branches and pull requests
-              already pushed stay on GitHub.
+              <span className="text-foreground">{deletingCard?.title}</span>.
+              Pushed branches and PRs stay on GitHub.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -238,11 +319,31 @@ export function Board() {
                 setDeletingCard(null)
               }}
             >
-              Delete card
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </SidebarProvider>
+  )
+}
+
+function BoardSkeleton({ mobile }: { mobile: boolean }) {
+  return (
+    <div
+      aria-label="Connecting"
+      className="flex min-h-0 flex-1 items-start gap-4 overflow-hidden p-5"
+    >
+      {Array.from({ length: mobile ? 1 : 4 }, (_, i) => (
+        <div
+          key={i}
+          className="flex w-full shrink-0 flex-col gap-3 hud-panel p-3 md:w-80"
+        >
+          <Skeleton className="h-7 w-2/3" />
+          <Skeleton className="h-24" />
+          <Skeleton className="h-20" />
+        </div>
+      ))}
     </div>
   )
 }

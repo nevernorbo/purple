@@ -4,9 +4,17 @@ import { useState, type FormEvent } from "react"
 
 import { Button } from "@/components/ui/button"
 import { api, call } from "@/lib/api"
+import { cn } from "@/lib/utils"
 import { PathInput } from "./PathInput"
 
-export function AddRepoForm({ onAdded }: { onAdded?: (repo: Repo) => void }) {
+export function AddRepoForm({
+  onAdded,
+  stacked = false,
+}: {
+  onAdded?: (repo: Repo) => void
+  /** Put the button under the input, for narrow containers like the sidebar. */
+  stacked?: boolean
+}) {
   const [path, setPath] = useState("")
   const [pending, setPending] = useState(false)
 
@@ -23,7 +31,10 @@ export function AddRepoForm({ onAdded }: { onAdded?: (repo: Repo) => void }) {
   }
 
   return (
-    <form onSubmit={submit} className="flex gap-2">
+    <form
+      onSubmit={submit}
+      className={cn("flex gap-2", stacked ? "flex-col" : "max-sm:flex-col")}
+    >
       <div className="min-w-0 flex-1">
         <PathInput value={path} onChange={setPath} />
       </div>

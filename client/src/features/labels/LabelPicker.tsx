@@ -8,7 +8,7 @@ export function LabelPicker({
   labels,
   selected,
   onChange,
-  empty = "No labels yet.",
+  empty = "No Labels",
 }: {
   labels: Label[]
   selected: number[]
@@ -16,7 +16,7 @@ export function LabelPicker({
   empty?: string
 }) {
   if (labels.length === 0) {
-    return <p className="px-1 py-2 text-xs text-muted-foreground">{empty}</p>
+    return <p className="px-2.5 py-2 text-sm text-muted-foreground">{empty}</p>
   }
   const toggle = (id: number) =>
     onChange(
@@ -37,13 +37,17 @@ export function LabelPicker({
               aria-selected={active}
               onClick={() => toggle(label.id)}
               className={cn(
-                "flex w-full items-center gap-2 px-2 py-1.5 text-left text-xs outline-none hover:bg-muted focus-visible:bg-muted",
-                active && "font-medium"
+                "flex w-full items-center gap-2.5 px-2.5 py-2 text-left text-sm outline-none hover:bg-foreground/6 focus-visible:bg-foreground/6",
+                active &&
+                  "bg-primary/10 font-semibold shadow-[inset_2px_0_0_var(--primary)]"
               )}
             >
               <LabelDot label={label} />
               <span className="flex-1 truncate">{label.name}</span>
-              <CheckIcon className={cn("size-3.5", !active && "invisible")} />
+              <CheckIcon
+                weight="bold"
+                className={cn("size-3.5 text-primary", !active && "invisible")}
+              />
             </button>
           </li>
         )

@@ -41,7 +41,7 @@ export async function call<T>(
     }
     return data
   } catch (error) {
-    toast.error((error as Error).message || "Network error")
+    toast.error((error as Error).message || "Network Error")
     return null
   }
 }

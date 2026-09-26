@@ -2,6 +2,7 @@ import {
   ArrowRightIcon,
   ArrowClockwiseIcon,
   DotsThreeIcon,
+  GitBranchIcon,
   PencilSimpleIcon,
   PlayIcon,
   StopIcon,
@@ -77,6 +78,12 @@ export function SortableCardItem({
   )
 }
 
+const STRIPE: Partial<Record<Card["status"], string>> = {
+  running: "bg-primary",
+  completed: "bg-success",
+  failed: "bg-destructive",
+}
+
 export function CardItem({
   card,
   labels,
@@ -91,20 +98,21 @@ export function CardItem({
   const cardLabels = card.labelIds
     .map((id) => labels.find((l) => l.id === id))
     .filter((l): l is Label => Boolean(l))
+  const stripe = STRIPE[card.status]
 
   return (
     <article
       {...props}
       className={cn(
-        "group/card relative flex flex-col gap-2 border bg-card p-2.5 text-card-foreground transition-colors outline-none hover:border-foreground/25 focus-visible:ring-2 focus-visible:ring-ring/50",
-        running && "border-primary/40 bg-primary/[0.03]",
+        "group/card relative flex flex-col gap-3 border bg-card p-4 text-card-foreground shadow-[inset_0_1px_0_var(--edge)] transition-colors outline-none hover:border-foreground/30 focus-visible:ring-2 focus-visible:ring-ring/50",
+        running && "animate-glow border-primary/60",
         className
       )}
     >
-      {running && (
+      {stripe && (
         <span
           aria-hidden
-          className="absolute inset-y-0 left-0 w-0.5 bg-primary"
+          className={cn("absolute inset-y-0 left-0 w-0.75", stripe)}
         />
       )}
 
@@ -112,7 +120,7 @@ export function CardItem({
         <button
           type="button"
           onClick={onEdit}
-          className="min-w-0 flex-1 text-left text-xs leading-snug font-medium outline-none after:absolute after:inset-0 focus-visible:underline"
+          className="min-w-0 flex-1 text-left text-xl leading-snug font-normal [overflow-wrap:anywhere] outline-none after:absolute after:inset-0 focus-visible:underline"
         >
           {card.title}
         </button>
@@ -123,7 +131,7 @@ export function CardItem({
                 variant="ghost"
                 size="icon-xs"
                 aria-label="Card actions"
-                className="relative z-10 -mt-0.5 -mr-1 opacity-60 group-hover/card:opacity-100 aria-expanded:opacity-100"
+                className="relative z-10 -mt-0.5 -mr-1 opacity-70 group-hover/card:opacity-100 aria-expanded:opacity-100"
               />
             }
           >
@@ -138,7 +146,7 @@ export function CardItem({
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger>
                   <ArrowRightIcon />
-                  Move to
+                  Move To
                 </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent className="w-40">
                   {moveTargets.map((column) => (
@@ -152,22 +160,14 @@ export function CardItem({
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
             )}
-            {running ? (
-              <DropdownMenuItem onClick={() => void cardActions.stop(card.id)}>
-                <StopIcon />
-                Stop agent
-              </DropdownMenuItem>
-            ) : (
+            {/* Completed cards have no footer action, so re-running lives here. */}
+            {card.status === "completed" && (
               <DropdownMenuItem
                 disabled={!hasPrompt}
                 onClick={() => void cardActions.start(card.id)}
               >
-                {card.status === "backlog" ? (
-                  <PlayIcon />
-                ) : (
-                  <ArrowClockwiseIcon />
-                )}
-                {card.status === "backlog" ? "Start agent" : "Re-run agent"}
+                <ArrowClockwiseIcon />
+                Re-run
               </DropdownMenuItem>
             )}
             <DropdownMenuSeparator />
@@ -184,7 +184,7 @@ export function CardItem({
       </div>
 
       {cardLabels.length > 0 && (
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-wrap gap-1.5">
           {cardLabels.map((label) => (
             <LabelChip key={label.id} label={label} />
           ))}
@@ -192,67 +192,77 @@ export function CardItem({
       )}
 
       {hasPrompt ? (
-        <p className="line-clamp-2 text-[11px] leading-relaxed whitespace-pre-line text-muted-foreground">
+        <p className="line-clamp-2 font-mono text-sm leading-relaxed whitespace-pre-line text-muted-foreground">
           {card.prompt}
         </p>
       ) : (
-        <p className="inline-flex items-center gap-1 text-[11px] text-amber-700 dark:text-amber-400">
+        <p className="inline-flex items-center gap-1.5 hud-caps text-sm text-warning">
           <WarningIcon className="size-3.5" />
-          Add a prompt to start this card
+          Needs Prompt
         </p>
       )}
 
       {card.branch && card.status !== "backlog" && (
         <p
-          className="truncate font-mono text-[10px] text-muted-foreground"
+          className="flex min-w-0 items-center gap-1 font-mono text-xs text-muted-foreground"
           title={card.branch}
         >
-          {card.branch}
+          <GitBranchIcon className="size-3.5 shrink-0" />
+          <span className="truncate">{card.branch}</span>
         </p>
       )}
 
-      <footer className="flex items-center gap-2 text-[11px] whitespace-nowrap text-muted-foreground">
+      <footer className="flex min-h-9 flex-wrap items-center gap-x-2 gap-y-2 border-t border-dashed pt-3 text-sm text-muted-foreground">
         <CardStatus card={card} />
         <span
-          className="ml-auto shrink-0"
+          className="ml-auto shrink-0 hud-caps tabular-nums"
           title={new Date(card.updatedAt).toLocaleString()}
         >
           {relativeTime(card.updatedAt)}
         </span>
-        {!running && hasPrompt && card.status === "backlog" && (
-          <Button
-            variant="outline"
-            size="xs"
-            className="relative z-10 -my-1"
-            onClick={() => void cardActions.start(card.id)}
-          >
-            <PlayIcon data-icon="inline-start" weight="fill" />
-            Start
-          </Button>
-        )}
-        {running && (
-          <Button
-            variant="outline"
-            size="xs"
-            className="relative z-10 -my-1"
-            onClick={() => void cardActions.stop(card.id)}
-          >
-            <StopIcon data-icon="inline-start" weight="fill" />
-            Stop
-          </Button>
-        )}
-        {card.status === "failed" && hasPrompt && (
-          <Button
-            variant="outline"
-            size="xs"
-            className="relative z-10 -my-1"
-            onClick={() => void cardActions.start(card.id)}
-          >
-            <ArrowClockwiseIcon data-icon="inline-start" />
-            Retry
-          </Button>
-        )}
+        <CardAction card={card} hasPrompt={hasPrompt} />
       </footer>
     </article>
+  )
+}
+
+/** The card's one primary action, styled as a skill-bar slot. */
+function CardAction({ card, hasPrompt }: { card: Card; hasPrompt: boolean }) {
+  const action =
+    card.status === "running"
+      ? {
+          label: "Stop",
+          icon: <StopIcon weight="fill" />,
+          run: cardActions.stop,
+        }
+      : !hasPrompt
+        ? null
+        : card.status === "backlog"
+          ? {
+              label: "Start",
+              icon: <PlayIcon weight="fill" />,
+              run: cardActions.start,
+            }
+          : card.status === "failed"
+            ? {
+                label: "Retry",
+                icon: <ArrowClockwiseIcon weight="bold" />,
+                run: cardActions.start,
+              }
+            : null
+  if (!action) return null
+
+  return (
+    <Button
+      variant="skill"
+      size="sm"
+      className="relative z-10"
+      onClick={() => void action.run(card.id)}
+    >
+      <span data-icon="inline-start" className="contents">
+        {action.icon}
+      </span>
+      {action.label}
+    </Button>
   )
 }

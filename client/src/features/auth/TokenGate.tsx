@@ -43,11 +43,13 @@ export function TokenGate({ children }: { children: ReactNode }) {
     <main className="flex min-h-svh items-center justify-center p-4">
       <form
         onSubmit={submit}
-        className="flex w-full max-w-sm flex-col gap-4 border bg-card p-6"
+        className="hud-corners relative flex w-full max-w-sm flex-col gap-5 hud-panel p-6"
       >
-        <Logo />
+        <div className="-mx-6 -mt-6 logbook-header px-6 py-4">
+          <Logo />
+        </div>
         <div className="flex flex-col gap-2">
-          <Label htmlFor="token">Access token</Label>
+          <Label htmlFor="token">Access Token</Label>
           <Input
             id="token"
             type="password"
@@ -58,10 +60,16 @@ export function TokenGate({ children }: { children: ReactNode }) {
             aria-invalid={rejected || undefined}
             placeholder="PURPLE_TOKEN"
           />
-          <p className="text-xs text-muted-foreground">
+          <p
+            className={
+              rejected
+                ? "text-sm text-destructive"
+                : "text-sm text-muted-foreground"
+            }
+          >
             {rejected
-              ? "That token was rejected. Check the server logs or PURPLE_TOKEN."
-              : "Printed by the server at startup, or set via PURPLE_TOKEN."}
+              ? "Token rejected."
+              : "See the server log or PURPLE_TOKEN."}
           </p>
         </div>
         <Button type="submit" disabled={!draft.trim()}>

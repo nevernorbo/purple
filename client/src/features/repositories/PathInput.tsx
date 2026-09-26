@@ -121,22 +121,24 @@ export function PathInput({
           align="start"
           className="isolate z-50"
         >
-          <Autocomplete.Popup className="max-h-[min(20rem,var(--available-height))] w-(--anchor-width) overflow-y-auto bg-popover py-1 text-popover-foreground shadow-md ring-1 ring-foreground/10">
+          <Autocomplete.Popup className="max-h-[min(20rem,var(--available-height))] w-(--anchor-width) overflow-y-auto bg-popover py-1 text-popover-foreground hud-popup">
             <Autocomplete.List>
               {(entry: PathEntry) => (
                 <Autocomplete.Item
                   key={entry.path}
                   value={entry}
-                  className="flex cursor-default items-center gap-2 px-2 py-1.5 text-xs outline-none select-none data-highlighted:bg-accent data-highlighted:text-accent-foreground"
+                  className="flex cursor-default items-center gap-2 px-2.5 py-2 text-sm outline-none select-none data-highlighted:bg-accent data-highlighted:text-accent-foreground"
                 >
                   {entry.isGitRepo ? (
                     <GitBranchIcon className="size-3.5 shrink-0 text-primary" />
                   ) : (
                     <FolderIcon className="size-3.5 shrink-0 text-muted-foreground" />
                   )}
-                  <span className="truncate font-mono">{entry.name}/</span>
+                  <span className="truncate font-mono text-xs">
+                    {entry.name}/
+                  </span>
                   {entry.isGitRepo && (
-                    <span className="ml-auto shrink-0 text-[10px] text-primary">
+                    <span className="ml-auto shrink-0 hud-caps text-xs font-bold text-primary">
                       git
                     </span>
                   )}

@@ -4,8 +4,15 @@ import { useState, type FormEvent } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { api, call } from "@/lib/api"
+import { cn } from "@/lib/utils"
 
-export function AddColumnComposer({ repoId }: { repoId: number }) {
+export function AddColumnComposer({
+  repoId,
+  className,
+}: {
+  repoId: number
+  className?: string
+}) {
   const [open, setOpen] = useState(false)
   const [name, setName] = useState("")
 
@@ -23,12 +30,15 @@ export function AddColumnComposer({ repoId }: { repoId: number }) {
   if (!open) {
     return (
       <Button
-        variant="outline"
-        className="w-72 shrink-0 justify-start border-dashed text-muted-foreground"
+        variant="ghost"
+        className={cn(
+          "h-14 w-80 shrink-0 justify-start border border-dashed border-foreground/25 bg-panel/40 hover:border-primary/60 hover:bg-primary/8 hover:text-foreground",
+          className
+        )}
         onClick={() => setOpen(true)}
       >
         <PlusIcon data-icon="inline-start" />
-        Add column
+        Add Column
       </Button>
     )
   }
@@ -36,7 +46,10 @@ export function AddColumnComposer({ repoId }: { repoId: number }) {
   return (
     <form
       onSubmit={submit}
-      className="flex w-72 shrink-0 flex-col gap-2 self-start border bg-muted/40 p-2"
+      className={cn(
+        "hud-corners relative flex w-80 shrink-0 flex-col gap-3 self-start hud-panel p-3",
+        className
+      )}
     >
       <Input
         autoFocus
@@ -44,13 +57,12 @@ export function AddColumnComposer({ repoId }: { repoId: number }) {
         maxLength={80}
         onChange={(e) => setName(e.target.value)}
         onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
-        placeholder="Column name…"
+        placeholder="Column Name"
         aria-label="Column name"
-        className="bg-card"
       />
       <div className="flex items-center gap-1">
         <Button type="submit" size="sm" disabled={!name.trim()}>
-          Add column
+          Add
         </Button>
         <Button
           type="button"

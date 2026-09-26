@@ -36,18 +36,22 @@ interface CardDrag {
 /**
  * Drag and drop for the board: columns reorder horizontally; cards reorder
  * within and move between custom columns. Drops apply optimistically and roll
- * back if the server rejects them.
+ * back if the server rejects them. Only custom columns reorder; system columns
+ * stay grouped at the end. With `lockToColumn` (the one-column mobile layout)
+ * cards only reorder within the column they started in.
  */
 export function useBoardDnd({
   repoId,
   columns,
   allByColumn,
   visibleByColumn,
+  lockToColumn = false,
 }: {
   repoId: number
   columns: Column[]
   allByColumn: Map<number, Card[]>
   visibleByColumn: Map<number, Card[]>
+  lockToColumn?: boolean
 }) {
   const { cards: storeCards, apply } = useBoardStore()
   const [cardDrag, setCardDrag] = useState<CardDrag | null>(null)
@@ -71,9 +75,10 @@ export function useBoardDnd({
       if (dataOf(args.active)?.type === "column") {
         return closestCenter({
           ...args,
-          droppableContainers: args.droppableContainers.filter(
-            (c) => dataOf(c)?.type === "column"
-          ),
+          droppableContainers: args.droppableContainers.filter((c) => {
+            const data = dataOf(c)
+            return data?.type === "column" && data.column.kind === "custom"
+          }),
         })
       }
 
@@ -81,6 +86,10 @@ export function useBoardDnd({
       // from. System columns aren't sortable, so their cards are never targets.
       const allowed = args.droppableContainers.filter((c) => {
         const data = dataOf(c)
+        if (lockToColumn)
+          return data?.type === "column"
+            ? data.column.id === originColumnId
+            : data?.type === "card" && data.columnId === originColumnId
         if (data?.type === "column")
           return (
             data.column.kind === "custom" || data.column.id === originColumnId
@@ -112,7 +121,7 @@ export function useBoardDnd({
         ? closestCenter({ ...args, droppableContainers: cardsInColumn })
         : [hits[0]!]
     },
-    [columns, originColumnId]
+    [columns, originColumnId, lockToColumn]
   )
 
   const onDragStart = ({ active }: DragStartEvent) => {
@@ -178,6 +187,10 @@ export function useBoardDnd({
   }
 
   const dropColumn = (columnId: number, overId: number) => {
+    if (kindOf(columnId) !== "custom" || kindOf(overId) !== "custom") return
+    // The server's index is over all of the repo's columns, system ones
+    // included. Moving within the full list keeps the custom columns' relative
+    // order identical to moving within the custom-only list that's rendered.
     const from = columns.findIndex((c) => c.id === columnId)
     const to = columns.findIndex((c) => c.id === overId)
     if (from === -1 || to === -1 || from === to) return
@@ -287,6 +300,8 @@ export function useBoardDnd({
       onDragOver,
       onDragEnd,
       onDragCancel: () => setCardDrag(null),
+      // Don't let a vertical card drag scroll the swipeable column strip.
+      autoScroll: lockToColumn ? { threshold: { x: 0, y: 0.2 } } : true,
     },
   }
 }

@@ -6,7 +6,7 @@ import {
 } from "@phosphor-icons/react"
 import type { Card } from "purple-server"
 
-import { duration, relativeTime, useNow } from "@/lib/time"
+import { duration, useNow } from "@/lib/time"
 
 export function CardStatus({ card }: { card: Card }) {
   const now = useNow(1000, card.status === "running")
@@ -14,7 +14,7 @@ export function CardStatus({ card }: { card: Card }) {
   switch (card.status) {
     case "running":
       return (
-        <span className="inline-flex items-center gap-1 text-primary">
+        <span className="inline-flex items-center gap-1 hud-caps font-semibold text-primary">
           <CircleNotchIcon className="size-3.5 animate-spin" />
           <span className="tabular-nums">
             {duration(now - (card.startedAt ?? now))}
@@ -28,21 +28,21 @@ export function CardStatus({ card }: { card: Card }) {
           target="_blank"
           rel="noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="inline-flex items-center gap-1 text-green-700 hover:underline dark:text-green-400"
+          className="inline-flex items-center gap-1 hud-caps font-semibold text-success hover:underline"
         >
           <CheckCircleIcon className="size-3.5" />
           PR #{card.prUrl.split("/").pop()}
           <ArrowSquareOutIcon className="size-3" />
         </a>
       ) : (
-        <span className="inline-flex items-center gap-1 text-green-700 dark:text-green-400">
+        <span className="inline-flex items-center gap-1 hud-caps font-semibold text-success">
           <CheckCircleIcon className="size-3.5" />
-          Done{card.finishedAt ? ` ${relativeTime(card.finishedAt)}` : ""}
+          Done
         </span>
       )
     case "failed":
       return (
-        <span className="inline-flex items-center gap-1 text-destructive">
+        <span className="inline-flex items-center gap-1 hud-caps font-semibold text-destructive">
           <XCircleIcon className="size-3.5" />
           {card.exitCode === null ? "Interrupted" : `Exit ${card.exitCode}`}
         </span>

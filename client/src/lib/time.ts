@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react"
 
-const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" })
-const UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
-  ["day", 86_400_000],
-  ["hour", 3_600_000],
-  ["minute", 60_000],
+const UNITS: [string, number][] = [
+  ["d", 86_400_000],
+  ["h", 3_600_000],
+  ["m", 60_000],
 ]
 
+/** Compact past-relative time: "Now", "5m ago", "2h ago", "3d ago". */
 export function relativeTime(timestamp: number, now = Date.now()) {
-  const diff = timestamp - now
+  const diff = Math.max(0, now - timestamp)
   for (const [unit, ms] of UNITS) {
-    if (Math.abs(diff) >= ms) return rtf.format(Math.round(diff / ms), unit)
+    if (diff >= ms) return `${Math.floor(diff / ms)}${unit} ago`
   }
-  return "just now"
+  return "Now"
 }
 
 export function duration(ms: number) {
