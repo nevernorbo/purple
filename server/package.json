@@ -1,15 +1,27 @@
 {
   "name": "purple-server",
-  "version": "1.0.50",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/types.ts"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
-    "elysia": "latest"
+    "@elysiajs/static": "latest",
+    "drizzle-orm": "latest",
+    "drizzle-typebox": "latest",
+    "elysia": "1.4.30"
   },
   "devDependencies": {
-    "bun-types": "latest"
-  },
-  "module": "src/index.js"
+    "@types/bun": "latest",
+    "drizzle-kit": "latest",
+    "typescript": "~6"
+  }
 }
