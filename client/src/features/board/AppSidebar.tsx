@@ -1,10 +1,11 @@
 import {
   DotsThreeIcon,
   FolderPlusIcon,
+  GitBranchIcon,
   MoonIcon,
   SunIcon,
   TagIcon,
-  TrashIcon
+  TrashIcon,
 } from "@phosphor-icons/react"
 import type { Repo } from "purple-server"
 import { useState } from "react"
@@ -59,7 +60,8 @@ export function AppSidebar({
   onOpenLabels: () => void
 }) {
   const { repos, cards, running, connected } = useBoardStore()
-  const { isMobile, setOpen, setOpenMobile } = useSidebar()
+  const { isMobile, state, setOpen, setOpenMobile } = useSidebar()
+  const compact = !isMobile && state === "collapsed"
   const [adding, setAdding] = useState(false)
   const [removing, setRemoving] = useState<Repo | null>(null)
   const removingCount = removing
@@ -74,13 +76,15 @@ export function AppSidebar({
   return (
     <>
       <Sidebar collapsible="icon">
-        <SidebarHeader className="h-16 justify-center logbook-header px-3 group-data-[collapsible=icon]:px-2">
-          <Logo />
+        <SidebarHeader className="h-16 justify-center overflow-hidden logbook-header px-3 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-2">
+          <Logo className="shrink-0 whitespace-nowrap" />
         </SidebarHeader>
 
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Boards</SidebarGroupLabel>
+            <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
+              Boards
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu className="gap-1">
                 {repos.map((repo) => (
@@ -89,14 +93,22 @@ export function AppSidebar({
                       size="lg"
                       isActive={repo.id === repoId}
                       tooltip={repo.name}
+                      aria-label={repo.name}
+                      className="transition-none group-data-[collapsible=icon]:justify-center"
                       onClick={() => select(repo.id)}
                     >
-                      <span className="flex min-w-0 flex-col gap-0.5">
-                        <span className="truncate text-lg leading-6">{repo.name}</span>
-                        <span className="truncate font-mono text-xs font-normal tracking-normal text-muted-foreground normal-case">
-                          {repo.path}
+                      {compact ? (
+                        <GitBranchIcon aria-hidden />
+                      ) : (
+                        <span className="flex w-[calc(var(--sidebar-width)-4rem)] shrink-0 flex-col gap-0.5">
+                          <span className="truncate text-lg leading-6">
+                            {repo.name}
+                          </span>
+                          <span className="truncate font-mono text-xs font-normal tracking-normal text-muted-foreground normal-case">
+                            {repo.path}
+                          </span>
                         </span>
-                      </span>
+                      )}
                     </SidebarMenuButton>
                     <DropdownMenu>
                       <DropdownMenuTrigger
@@ -129,15 +141,18 @@ export function AppSidebar({
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     tooltip="Add Board"
+                    aria-label="Add Board"
                     aria-expanded={adding}
-                    className="text-muted-foreground"
+                    className="text-muted-foreground transition-none"
                     onClick={() => {
                       setOpen(true)
                       setAdding((a) => !a)
                     }}
                   >
                     <FolderPlusIcon />
-                    <span>Add Board</span>
+                    <span className="shrink-0 group-data-[collapsible=icon]:hidden">
+                      Add Board
+                    </span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -160,19 +175,25 @@ export function AppSidebar({
           </SidebarGroup>
 
           <SidebarGroup>
-            <SidebarGroupLabel>Manage</SidebarGroupLabel>
+            <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
+              Manage
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     tooltip="Labels"
+                    aria-label="Labels"
+                    className="transition-none"
                     onClick={() => {
                       if (isMobile) setOpenMobile(false)
                       onOpenLabels()
                     }}
                   >
                     <TagIcon />
-                    <span>Labels</span>
+                    <span className="shrink-0 group-data-[collapsible=icon]:hidden">
+                      Labels
+                    </span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -180,12 +201,13 @@ export function AppSidebar({
           </SidebarGroup>
         </SidebarContent>
 
-        <SidebarFooter className="border-t bg-panel-header/40 py-3">
+        <SidebarFooter className="overflow-hidden border-t bg-panel-header/40 py-3">
           <div className="flex items-center gap-2 group-data-[collapsible=icon]:flex-col">
             <StatusIndicators
               running={running}
               connected={connected}
-              className="min-w-0 flex-1 px-1 group-data-[collapsible=icon]:hidden"
+              compact={compact}
+              className="flex-1 px-1 group-data-[collapsible=icon]:flex-none group-data-[collapsible=icon]:px-0"
             />
             <ThemeToggle />
           </div>

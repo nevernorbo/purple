@@ -193,6 +193,10 @@
     * {
         @apply border-border outline-ring/50;
     }
+    button:not(:disabled):not([aria-disabled="true"]):not([data-disabled]),
+    [role="button"]:not(:disabled):not([aria-disabled="true"]):not([data-disabled]) {
+        @apply cursor-pointer;
+    }
     html {
         @apply font-sans;
         color-scheme: light;

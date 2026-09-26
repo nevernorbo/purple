@@ -44,7 +44,7 @@ function ColorSwatches({
           title={LABEL_COLORS[color].rarity}
           onClick={() => onChange(color)}
           className={cn(
-            "size-6 shadow-[inset_0_1px_0_oklch(1_0_0/0.35),inset_0_-2px_0_oklch(0_0_0/0.2)] ring-offset-2 ring-offset-popover outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            "size-6 cursor-pointer shadow-[inset_0_1px_0_oklch(1_0_0/0.35),inset_0_-2px_0_oklch(0_0_0/0.2)] outline-none focus-visible:ring-2 focus-visible:ring-ring",
             LABEL_COLORS[color].dot,
             value === color && "ring-2 ring-foreground"
           )}
@@ -64,7 +64,7 @@ function ColorButton({ label }: { label: Label }) {
             type="button"
             aria-label={`Change color of ${label.name}`}
             className={cn(
-              "size-6 shrink-0 shadow-[inset_0_1px_0_oklch(1_0_0/0.35),inset_0_-2px_0_oklch(0_0_0/0.2)]",
+              "size-6 shrink-0 cursor-pointer shadow-[inset_0_1px_0_oklch(1_0_0/0.35),inset_0_-2px_0_oklch(0_0_0/0.2)]",
               LABEL_COLORS[label.color].dot
             )}
           />

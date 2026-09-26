@@ -104,7 +104,7 @@ export function Column({
       <section
         ref={setNodeRef}
         aria-label={column.name}
-        className="relative flex max-h-full w-11 shrink-0 flex-col items-center hud-panel"
+        className="relative flex max-h-full w-16 shrink-0 flex-col items-center hud-panel"
       >
         <span aria-hidden className={cn("h-0.5 w-full", system.accent)} />
         <button
@@ -112,13 +112,13 @@ export function Column({
           onClick={onToggleCollapsed}
           aria-label={`Expand ${column.name}`}
           aria-expanded={false}
-          className="flex flex-1 flex-col items-center gap-3 px-1 py-3 outline-none hover:bg-foreground/5 focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset"
+          className="flex w-full flex-1 flex-col items-center gap-3 px-1 py-3 outline-none hover:bg-foreground/5 focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset"
         >
           <span className={system.text}>{system.icon}</span>
-          <span className="border px-1 hud-caps text-sm font-bold text-muted-foreground tabular-nums">
+          <span className="border px-1 hud-caps font-bold text-muted-foreground tabular-nums">
             {count}
           </span>
-          <span className="hud-caps text-base font-bold tracking-wider [writing-mode:vertical-rl]">
+          <span className="hud-caps text-xl font-bold tracking-wider [writing-mode:vertical-rl]">
             {column.name}
           </span>
         </button>

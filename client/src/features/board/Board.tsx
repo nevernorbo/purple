@@ -3,7 +3,7 @@ import {
   horizontalListSortingStrategy,
   SortableContext,
 } from "@dnd-kit/sortable"
-import { GitBranchIcon, MagnifyingGlassIcon } from "@phosphor-icons/react"
+import { MagnifyingGlassIcon } from "@phosphor-icons/react"
 import type { Card, ColumnKind, Column as ColumnType } from "purple-server"
 import {
   useCallback,
@@ -184,7 +184,6 @@ export function Board() {
       />
       <SidebarInset className="h-svh min-w-0 overflow-hidden">
         <header className="flex h-16 shrink-0 items-center gap-3 border-b bg-panel/70 px-3 shadow-[inset_0_-1px_0_color-mix(in_oklch,var(--primary)_25%,transparent)] backdrop-blur-md md:px-4">
-          <GitBranchIcon />
           <h1 className="min-w-0 truncate hud-caps text-2xl leading-tight font-normal md:text-3xl">
             {repo?.name ?? "Purple"}
           </h1>
