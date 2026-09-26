@@ -1,4 +1,6 @@
 import { describe, expect, it } from "bun:test"
+import { mkdirSync, writeFileSync } from "node:fs"
+import { join } from "node:path"
 
 import { request, setupBoard } from "./helpers"
 
@@ -22,6 +24,38 @@ describe("repositories", () => {
     const { app } = await import("../src/app")
     const res = await app.handle(new Request("http://localhost/api/cards"))
     expect(res.status).toBe(401)
+  })
+})
+
+describe("repository files", () => {
+  it("lists tracked and untracked files, skipping ignored ones", async () => {
+    const { repo, repoId } = await setupBoard()
+    mkdirSync(join(repo, "src/features"), { recursive: true })
+    writeFileSync(join(repo, "src/features/CardDialog.tsx"), "")
+    writeFileSync(join(repo, "src/app.ts"), "")
+
+    const { data: top } = await request("GET", `/repos/${repoId}/files`)
+    expect(top).toEqual([
+      { path: "src/", isDir: true },
+      { path: ".gitignore", isDir: false },
+      { path: "README.md", isDir: false },
+    ])
+
+    const { data: hits } = await request("GET", `/repos/${repoId}/files?q=carddia`)
+    expect(hits[0]).toEqual({ path: "src/features/CardDialog.tsx", isDir: false })
+
+    const { data: fuzzy } = await request("GET", `/repos/${repoId}/files?q=sfcd`)
+    expect(fuzzy.map((f: { path: string }) => f.path)).toContain("src/features/CardDialog.tsx")
+
+    const { data: children } = await request("GET", `/repos/${repoId}/files?q=src/`)
+    expect(children).toEqual([
+      { path: "src/features/", isDir: true },
+      { path: "src/app.ts", isDir: false },
+    ])
+
+    const { data: ignored } = await request("GET", `/repos/${repoId}/files?q=node_modules`)
+    expect(ignored).toEqual([])
+    expect((await request("GET", "/repos/99999/files")).status).toBe(404)
   })
 })
 
