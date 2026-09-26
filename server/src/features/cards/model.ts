@@ -16,4 +16,5 @@ export const CardModel = {
     labelIds: t.Optional(labelIds),
   }),
   move: t.Object({ columnId: t.Integer(), index: t.Optional(t.Integer({ minimum: 0 })) }),
+  revisionParams: t.Object({ id: t.Numeric(), revisionId: t.Numeric() }),
 }

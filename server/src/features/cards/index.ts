@@ -15,6 +15,12 @@ export const cardsController = new Elysia()
     params: idParams,
     body: CardModel.update,
   })
+  .get("/cards/:id/revisions", ({ params }) => CardService.revisions(params.id), { params: idParams })
+  .post(
+    "/cards/:id/revisions/:revisionId/restore",
+    ({ params }) => CardService.restore(params.id, params.revisionId),
+    { params: CardModel.revisionParams }
+  )
   .post("/cards/:id/move", ({ params, body }) => CardService.move(params.id, body.columnId, body.index), {
     params: idParams,
     body: CardModel.move,

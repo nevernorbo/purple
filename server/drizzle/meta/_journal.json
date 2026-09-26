@@ -8,6 +8,13 @@
       "when": 1790410614461,
       "tag": "0000_nifty_beyonder",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1790424621331,
+      "tag": "0001_card_revisions",
+      "breakpoints": true
     }
   ]
 }

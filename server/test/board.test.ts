@@ -179,3 +179,71 @@ describe("cards", () => {
     expect(res.status).toBe(400)
   })
 })
+
+describe("card revisions", () => {
+  it("records a revision per save that changes the title or prompt", async () => {
+    const { ready } = await setupBoard()
+    const { data: card } = await request("POST", `/columns/${ready.id}/cards`, {
+      title: "t",
+      prompt: "v1",
+    })
+    await request("PATCH", `/cards/${card.id}`, { prompt: "v2" })
+    await request("PATCH", `/cards/${card.id}`, { prompt: "v2" }) // unchanged: no revision
+    await request("PATCH", `/cards/${card.id}`, { labelIds: [] }) // labels aren't versioned
+    await request("PATCH", `/cards/${card.id}`, { title: "t2" })
+
+    const { data: revisions } = await request("GET", `/cards/${card.id}/revisions`)
+    expect(revisions.map((r: { title: string; prompt: string }) => [r.title, r.prompt])).toEqual([
+      ["t2", "v2"],
+      ["t", "v2"],
+      ["t", "v1"],
+    ])
+  })
+
+  it("restores by adding a new revision, keeping history", async () => {
+    const { ready } = await setupBoard()
+    const { data: card } = await request("POST", `/columns/${ready.id}/cards`, {
+      title: "t",
+      prompt: "v1",
+    })
+    await request("PATCH", `/cards/${card.id}`, { prompt: "v2" })
+    const { data: before } = await request("GET", `/cards/${card.id}/revisions`)
+    const first = before.at(-1)
+
+    const { status, data: restored } = await request(
+      "POST",
+      `/cards/${card.id}/revisions/${first.id}/restore`
+    )
+    expect(status).toBe(200)
+    expect(restored.prompt).toBe("v1")
+    const { data: after } = await request("GET", `/cards/${card.id}/revisions`)
+    expect(after).toHaveLength(3)
+    expect(after[0]).toMatchObject({ prompt: "v1", restoredFrom: first.id })
+
+    const { data: other } = await request("POST", `/columns/${ready.id}/cards`, { title: "o" })
+    expect(
+      (await request("POST", `/cards/${other.id}/revisions/${first.id}/restore`)).status
+    ).toBe(404)
+  })
+
+  it("backfills a baseline for cards without history and cascades on delete", async () => {
+    const { ready } = await setupBoard()
+    const { data: card } = await request("POST", `/columns/${ready.id}/cards`, {
+      title: "old",
+      prompt: "legacy",
+    })
+    const { db } = await import("../src/db/client")
+    const { cardRevisions } = await import("../src/db/schema")
+    const { eq } = await import("drizzle-orm")
+    const count = () =>
+      db.select().from(cardRevisions).where(eq(cardRevisions.cardId, card.id)).all().length
+    db.delete(cardRevisions).where(eq(cardRevisions.cardId, card.id)).run()
+
+    await request("PATCH", `/cards/${card.id}`, { prompt: "new" })
+    const { data: revisions } = await request("GET", `/cards/${card.id}/revisions`)
+    expect(revisions.map((r: { prompt: string }) => r.prompt)).toEqual(["new", "legacy"])
+
+    await request("DELETE", `/cards/${card.id}`)
+    expect(count()).toBe(0)
+  })
+})

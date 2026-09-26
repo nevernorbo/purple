@@ -31,6 +31,7 @@
     "@tiptap/suggestion": "^3.31.3",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.4.0",
+    "diff": "^9.0.0",
     "elysia": "1.4.30",
     "purple-server": "workspace:*",
     "react": "^19.2.8",

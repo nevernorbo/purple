@@ -84,6 +84,23 @@ export const cards = sqliteTable(
   ]
 )
 
+/** Snapshot of a card's title and prompt, one per save that changed either. */
+export const cardRevisions = sqliteTable(
+  "card_revisions",
+  {
+    id: integer().primaryKey({ autoIncrement: true }),
+    cardId: integer()
+      .notNull()
+      .references(() => cards.id, { onDelete: "cascade" }),
+    title: text().notNull(),
+    prompt: text().notNull(),
+    /** Set when this revision was created by restoring an older one. */
+    restoredFrom: integer(),
+    createdAt: integer().notNull().$defaultFn(now),
+  },
+  (t) => [index("card_revisions_card_idx").on(t.cardId, t.id)]
+)
+
 export const labels = sqliteTable("labels", {
   id: integer().primaryKey({ autoIncrement: true }),
   name: text().notNull().unique(),
@@ -111,6 +128,7 @@ export const table = {
   repositories,
   columns,
   cards,
+  cardRevisions,
   labels,
   cardLabels,
 } as const

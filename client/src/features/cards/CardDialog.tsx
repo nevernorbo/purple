@@ -1,6 +1,17 @@
-import { PlusIcon, TagIcon } from "@phosphor-icons/react"
-import type { Card, Label } from "purple-server"
-import { useState, type FormEvent, type KeyboardEvent } from "react"
+import {
+  ClockCounterClockwiseIcon,
+  PencilSimpleIcon,
+  PlusIcon,
+  TagIcon,
+} from "@phosphor-icons/react"
+import type { Card, CardRevision, Label } from "purple-server"
+import {
+  useImperativeHandle,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type Ref,
+} from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -21,7 +32,13 @@ import { useBoardStore } from "@/features/realtime/BoardStore"
 import { LabelChip } from "@/features/labels/LabelChip"
 import { LabelPicker } from "@/features/labels/LabelPicker"
 import { CardStatus } from "./CardStatus"
+import { RevisionHistory } from "./history/RevisionHistory"
 import { PromptEditor } from "./prompt/PromptEditor"
+
+interface CardFormHandle {
+  /** Persists pending edits; called when the dialog closes. */
+  flush: () => void
+}
 
 export function CardDialog({
   card,
@@ -30,49 +47,108 @@ export function CardDialog({
   card: Card | null
   onClose: () => void
 }) {
+  const formRef = useRef<CardFormHandle>(null)
+  const close = () => {
+    formRef.current?.flush()
+    onClose()
+  }
+
   return (
-    <Dialog open={card !== null} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={card !== null} onOpenChange={(open) => !open && close()}>
       <DialogContent className="flex flex-col max-sm:inset-0 max-sm:h-svh max-sm:max-w-none max-sm:translate-0 max-sm:overflow-y-auto sm:h-[min(52rem,calc(100svh-4rem))] sm:max-w-4xl">
         {/* Remount per card so the form starts from that card's values. */}
-        {card && <CardForm key={card.id} card={card} onClose={onClose} />}
+        {card && <CardForm key={card.id} ref={formRef} card={card} />}
       </DialogContent>
     </Dialog>
   )
 }
 
-function CardForm({ card, onClose }: { card: Card; onClose: () => void }) {
+interface Draft {
+  title: string
+  prompt: string
+  labelIds: number[]
+}
+
+const sameLabels = (a: number[], b: number[]) =>
+  a.length === b.length && [...a].sort().join() === [...b].sort().join()
+
+function CardForm({ ref, card }: { ref: Ref<CardFormHandle>; card: Card }) {
   const { labels } = useBoardStore()
   const [title, setTitle] = useState(card.title)
   const [prompt, setPrompt] = useState(card.prompt)
   const [labelIds, setLabelIds] = useState(card.labelIds)
-  const [pending, setPending] = useState(false)
+  /** What the server has; edits are diffed against it to decide whether to save. */
+  const [saved, setSaved] = useState<Draft>(() => ({
+    title: card.title,
+    prompt: card.prompt,
+    labelIds: card.labelIds,
+  }))
+  const [saving, setSaving] = useState(false)
+  const [showHistory, setShowHistory] = useState(false)
+  /** Bumped after each save so the history list refetches. */
+  const [revision, setRevision] = useState(0)
+  /** Bumped to remount the editor when its content is replaced (restore). */
+  const [editorKey, setEditorKey] = useState(0)
+  const queue = useRef<Promise<unknown>>(Promise.resolve())
   const locked = card.status === "running"
 
-  const save = async (event?: FormEvent) => {
-    event?.preventDefault()
-    if (locked || pending || !title.trim()) return
-    setPending(true)
-    const saved = await call(
-      api
-        .cards({ id: card.id })
-        .patch({ title: title.trim(), prompt, labelIds })
-    )
-    setPending(false)
-    if (saved) onClose()
+  const dirty =
+    title.trim() !== saved.title ||
+    prompt !== saved.prompt ||
+    !sameLabels(labelIds, saved.labelIds)
+
+  /** Saves the current edits, serialized behind any save already in flight. */
+  const save = () => {
+    if (locked || !dirty) return queue.current
+    // A blank title can't be saved; keep the last one rather than dropping the prompt.
+    const draft = { title: title.trim() || saved.title, prompt, labelIds }
+    const run = async () => {
+      setSaving(true)
+      const result = await call(api.cards({ id: card.id }).patch(draft))
+      setSaving(false)
+      if (!result) return
+      setSaved(draft)
+      setRevision((r) => r + 1)
+    }
+    queue.current = queue.current.then(run)
+    return queue.current
   }
 
-  // Capture phase, so the editor's own Mod-Enter (hard break) never sees it.
+  useImperativeHandle(ref, () => ({ flush: () => void save() }))
+
   const onKeyDownCapture = (event: KeyboardEvent) => {
-    if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+    if (event.key.toLowerCase() === "s" && (event.metaKey || event.ctrlKey)) {
       event.preventDefault()
       event.stopPropagation()
       void save()
     }
   }
 
+  const toggleHistory = async () => {
+    // Commit pending edits first so they show up as the newest revision.
+    if (!showHistory) await save()
+    setShowHistory((open) => !open)
+  }
+
+  const restore = async (target: CardRevision) => {
+    await save()
+    const result = await call(
+      api
+        .cards({ id: card.id })
+        .revisions({ revisionId: target.id })
+        .restore.post()
+    )
+    if (!result) return
+    setTitle(result.title)
+    setPrompt(result.prompt)
+    setSaved({ title: result.title, prompt: result.prompt, labelIds })
+    setEditorKey((k) => k + 1)
+    setRevision((r) => r + 1)
+    setShowHistory(false)
+  }
+
   return (
-    <form
-      onSubmit={save}
+    <div
       onKeyDownCapture={onKeyDownCapture}
       className="flex min-h-0 flex-1 flex-col gap-4"
     >
@@ -97,7 +173,6 @@ function CardForm({ card, onClose }: { card: Card; onClose: () => void }) {
           value={title}
           maxLength={200}
           readOnly={locked}
-          required
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Card title"
           className="-mx-1.5 w-[calc(100%+0.75rem)] border border-transparent bg-transparent px-1.5 py-0.5 text-2xl leading-tight outline-none placeholder:text-muted-foreground/60 hover:border-input read-only:hover:border-transparent focus-visible:border-primary focus-visible:bg-background/50"
@@ -110,36 +185,64 @@ function CardForm({ card, onClose }: { card: Card; onClose: () => void }) {
         />
       </DialogHeader>
 
-      <PromptEditor
-        repoId={card.repoId}
-        value={prompt}
-        onChange={setPrompt}
-        readOnly={locked}
-        className="min-h-72 flex-1"
-      />
+      {showHistory ? (
+        <RevisionHistory
+          cardId={card.id}
+          refreshKey={revision}
+          readOnly={locked}
+          onRestore={restore}
+        />
+      ) : (
+        <PromptEditor
+          key={editorKey}
+          repoId={card.repoId}
+          value={prompt}
+          onChange={setPrompt}
+          readOnly={locked}
+          className="min-h-72 flex-1"
+        />
+      )}
 
-      <DialogFooter className="sm:items-center sm:justify-between">
-        <p className="hidden text-xs text-muted-foreground sm:block">
+      <DialogFooter className="flex-row items-center justify-between sm:justify-between">
+        <p className="text-xs text-muted-foreground" aria-live="polite">
           {locked ? (
             "Read-only while the agent is running"
+          ) : saving ? (
+            "Saving…"
+          ) : dirty ? (
+            <>
+              <span className="text-warning">Unsaved changes</span>
+              <span className="max-sm:hidden">
+                {" "}
+                · <Kbd>⌘S</Kbd> or close to save
+              </span>
+            </>
           ) : (
             <>
-              <Kbd>@</Kbd> reference a file · <Kbd>⌘↵</Kbd> save
+              All changes saved
+              <span className="max-sm:hidden">
+                {" "}
+                · <Kbd>@</Kbd> reference a file
+              </span>
             </>
           )}
         </p>
-        <div className="flex flex-col-reverse gap-2 sm:flex-row">
-          <Button type="button" variant="outline" onClick={onClose}>
-            {locked ? "Close" : "Cancel"}
-          </Button>
-          {!locked && (
-            <Button type="submit" disabled={pending || !title.trim()}>
-              Save
-            </Button>
+        <Button
+          type="button"
+          variant={showHistory ? "secondary" : "outline"}
+          size="sm"
+          onClick={toggleHistory}
+          disabled={saving}
+        >
+          {showHistory ? (
+            <PencilSimpleIcon data-icon="inline-start" />
+          ) : (
+            <ClockCounterClockwiseIcon data-icon="inline-start" />
           )}
-        </div>
+          {showHistory ? "Editor" : "History"}
+        </Button>
       </DialogFooter>
-    </form>
+    </div>
   )
 }
 

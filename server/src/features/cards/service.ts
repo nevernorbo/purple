@@ -1,11 +1,12 @@
 import { and, asc, eq, inArray, max, ne } from "drizzle-orm"
 
 import { db } from "../../db/client"
-import { cardLabels, cards, columns, labels } from "../../db/schema"
-import type { Card, CardRow } from "../../db/types"
+import { cardLabels, cardRevisions, cards, columns, labels } from "../../db/schema"
+import type { Card, CardRevision, CardRow } from "../../db/types"
 import { fail } from "../../lib/errors"
 import { bus } from "../realtime/bus"
 import type { Tx } from "../columns/service"
+import { RevisionService } from "./revisions"
 
 type Conn = Tx | typeof db
 
@@ -86,25 +87,49 @@ export abstract class CardService {
         .returning()
         .get()
       if (input.labelIds) setLabels(tx, row.id, input.labelIds)
-      return CardService.get(row.id, tx)
+      const card = CardService.get(row.id, tx)
+      RevisionService.record(card, tx)
+      return card
     })
     bus.publish({ type: "card.upserted", card })
     return card
   }
 
-  static update(id: number, input: Partial<CardInput>): Card {
+  /** Saves the card; a changed title or prompt is recorded as a new revision. */
+  static update(id: number, input: Partial<CardInput>, restoredFrom?: number): Card {
     const card = db.transaction((tx) => {
       const existing = CardService.get(id, tx)
       if (existing.status === "running") throw fail.conflict("Card is running")
+      RevisionService.ensureBaseline(existing, tx)
       const patch: Partial<CardRow> = { updatedAt: Date.now() }
       if (input.title !== undefined) patch.title = input.title.trim()
       if (input.prompt !== undefined) patch.prompt = input.prompt
       if (input.labelIds !== undefined) setLabels(tx, id, input.labelIds)
       tx.update(cards).set(patch).where(eq(cards.id, id)).run()
-      return CardService.get(id, tx)
+      const card = CardService.get(id, tx)
+      RevisionService.record(card, tx, restoredFrom)
+      return card
     })
     bus.publish({ type: "card.upserted", card })
     return card
+  }
+
+  static revisions(id: number): CardRevision[] {
+    return db.transaction((tx) => {
+      RevisionService.ensureBaseline(CardService.get(id, tx), tx)
+      return RevisionService.list(id, tx)
+    })
+  }
+
+  /** Like `git revert`: restoring adds a new revision with the old content, keeping history. */
+  static restore(id: number, revisionId: number): Card {
+    const revision = db
+      .select()
+      .from(cardRevisions)
+      .where(and(eq(cardRevisions.id, revisionId), eq(cardRevisions.cardId, id)))
+      .get()
+    if (!revision) throw fail.notFound("Revision")
+    return CardService.update(id, { title: revision.title, prompt: revision.prompt }, revision.id)
   }
 
   /**
