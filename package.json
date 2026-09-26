@@ -6,7 +6,7 @@
     "@sinclair/typebox": "0.34.52"
   },
   "scripts": {
-    "dev": "bun run --filter '*' dev",
+    "dev": "bun run --parallel --filter '*' dev",
     "build": "bun run --filter purple-client build",
     "start": "cd server && NODE_ENV=production bun src/index.ts",
     "typecheck": "bun run --filter '*' typecheck",
