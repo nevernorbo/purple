@@ -1,6 +1,7 @@
 import { Elysia } from "elysia"
 
 import { idParams } from "../../db/model"
+import { PrSummary } from "../runner/pr"
 import { Runner } from "../runner/service"
 import { CardModel } from "./model"
 import { CardService } from "./service"
@@ -20,6 +21,14 @@ export const cardsController = new Elysia()
     "/cards/:id/revisions/:revisionId/restore",
     ({ params }) => CardService.restore(params.id, params.revisionId),
     { params: CardModel.revisionParams }
+  )
+  .post(
+    "/cards/:id/pr-summary",
+    async ({ params }) => {
+      CardService.get(params.id)
+      return (await PrSummary.refresh(params.id)) ?? CardService.get(params.id)
+    },
+    { params: idParams }
   )
   .post("/cards/:id/move", ({ params, body }) => CardService.move(params.id, body.columnId, body.index), {
     params: idParams,

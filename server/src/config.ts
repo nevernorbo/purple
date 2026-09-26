@@ -25,6 +25,7 @@ export const config = {
   dbPath: process.env.PURPLE_DB ?? join(dataDir, "purple.sqlite"),
   logsDir: join(dataDir, "logs"),
   claudeBin: process.env.PURPLE_CLAUDE_BIN ?? "claude",
+  ghBin: process.env.PURPLE_GH_BIN ?? "gh",
   clientDist: resolve(import.meta.dir, "../../client/dist"),
   production: process.env.NODE_ENV === "production",
 } as const

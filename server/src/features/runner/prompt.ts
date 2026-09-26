@@ -20,6 +20,7 @@ MANDATORY FINAL TASK:
 2. Stage and commit all changes with a descriptive commit message.
 3. Push this branch to origin: \`git push -u origin ${branch}\`
 4. Open a GitHub Pull Request using GitHub CLI (\`gh\`):
-   \`gh pr create --title "${shellQuoteInner(title)}" --body "<Detailed all and architectural changes choices, made, markdown of steps summary verification>"\`
+   \`gh pr create --title "${shellQuoteInner(title)}" --body "<markdown description>"\`
+   The description must start with a \`## Summary\` section of 2-5 bullet points, then cover the changes, architectural choices and verification steps in detail.
 `
 }

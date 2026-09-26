@@ -22,12 +22,13 @@ The access token is printed at startup. Set `PURPLE_TOKEN` to choose one; otherw
 | `PURPLE_TOKEN`      | generated          | Shared bearer token for API and websocket   |
 | `PURPLE_DATA_DIR`   | `./data`           | SQLite db, agent logs (`logs/<cardId>.log`) |
 | `PURPLE_CLAUDE_BIN` | `claude`           | Agent binary (tests use a fake)             |
+| `PURPLE_GH_BIN`     | `gh`               | GitHub CLI for PR summaries (tests use a fake) |
 
 ## How it works
 
 - **Boards**: one per registered repo, starting with the system columns Running / Completed / Failed. Add custom columns for grouping; any column can be renamed and moved, custom ones deleted. Cards are created in and moved between custom columns only.
 - **Prompts**: markdown, with `@path` file references picked from the repo. Edits save on close or ⌘/Ctrl+S; every save that changes the title or prompt becomes a revision you can diff and restore (restoring adds a new revision, like `git revert`).
-- **Start**: creates `.worktrees/<slug>-<id>` via `git worktree add -B`, symlinks `node_modules` and `.env`, and runs `claude -p "<prompt + mandatory commit/push/PR task>" --dangerously-skip-permissions`. On exit the worktree is removed and the card moves to Completed (exit 0, PR link parsed from the log) or Failed.
+- **Start**: creates `.worktrees/<slug>-<id>` via `git worktree add -B`, symlinks `node_modules` and `.env`, and runs `claude -p "<prompt + mandatory commit/push/PR task>" --dangerously-skip-permissions`. On exit the worktree is removed and the card moves to Completed (exit 0, PR link parsed from the log) or Failed. The PR's `## Summary` section is then fetched with `gh pr view` and shown in the card's details dialog (cards finished earlier are backfilled on boot; its refresh button re-fetches).
 - **Restart safety**: on boot, cards left running are marked failed and their worktrees removed. Shutting the server down (SIGINT/SIGTERM) stops running agents.
 - Registering a repo adds `.worktrees/`, `/node_modules` and `/.env` to its `.git/info/exclude` so agents never commit the symlinks.
 

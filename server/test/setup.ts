@@ -6,3 +6,4 @@ process.env.PURPLE_DATA_DIR = mkdtempSync(join(tmpdir(), "purple-test-"))
 process.env.PURPLE_DB = ":memory:"
 process.env.PURPLE_TOKEN = "test-token"
 process.env.PURPLE_CLAUDE_BIN = join(import.meta.dir, "fixtures/fake-claude.sh")
+process.env.PURPLE_GH_BIN = join(import.meta.dir, "fixtures/fake-gh.sh")

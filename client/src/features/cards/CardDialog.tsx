@@ -31,8 +31,10 @@ import { api, call } from "@/lib/api"
 import { useBoardStore } from "@/features/realtime/BoardStore"
 import { LabelChip } from "@/features/labels/LabelChip"
 import { LabelPicker } from "@/features/labels/LabelPicker"
+import { cardActions } from "./actions"
 import { CardStatus } from "./CardStatus"
 import { RevisionHistory } from "./history/RevisionHistory"
+import { PrSummary } from "./PrSummary"
 import { PromptEditor } from "./prompt/PromptEditor"
 
 interface CardFormHandle {
@@ -184,6 +186,14 @@ function CardForm({ ref, card }: { ref: Ref<CardFormHandle>; card: Card }) {
           readOnly={locked}
         />
       </DialogHeader>
+
+      {/* Hidden in history so the diff gets the room. */}
+      {card.prUrl && !locked && !showHistory && (
+        <PrSummary
+          summary={card.prSummary}
+          onRefresh={() => cardActions.refreshPrSummary(card.id)}
+        />
+      )}
 
       {showHistory ? (
         <RevisionHistory

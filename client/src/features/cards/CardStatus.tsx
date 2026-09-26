@@ -1,8 +1,8 @@
 import {
-  ArrowSquareOutIcon,
   CheckCircleIcon,
   CircleNotchIcon,
-  XCircleIcon,
+  GitPullRequestIcon,
+  XCircleIcon
 } from "@phosphor-icons/react"
 import type { Card } from "purple-server"
 
@@ -28,11 +28,10 @@ export function CardStatus({ card }: { card: Card }) {
           target="_blank"
           rel="noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="inline-flex items-center gap-1 hud-caps font-semibold text-success hover:underline"
+          className="relative z-10 inline-flex items-center gap-1 hud-caps font-semibold text-success hover:underline"
         >
-          <CheckCircleIcon className="size-3.5" />
+          <GitPullRequestIcon className="size-3.5" />
           PR #{card.prUrl.split("/").pop()}
-          <ArrowSquareOutIcon className="size-3" />
         </a>
       ) : (
         <span className="inline-flex items-center gap-1 hud-caps font-semibold text-success">

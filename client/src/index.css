@@ -446,3 +446,65 @@
         outline: 2px solid var(--ring);
     }
 }
+
+/* PR summary in the card dialog: compact markdown in the mono voice. */
+@layer components {
+    .pr-summary {
+        font-family: var(--font-mono);
+        font-size: 0.8125rem;
+        line-height: 1.6;
+        color: var(--muted-foreground);
+        overflow-wrap: anywhere;
+
+        & > * + * {
+            margin-top: 0.5em;
+        }
+        & h1,
+        & h2,
+        & h3,
+        & h4 {
+            color: var(--foreground);
+            font-weight: 700;
+        }
+        & strong {
+            color: var(--foreground);
+            font-weight: 700;
+        }
+        & ul,
+        & ol {
+            padding-left: 1.25em;
+        }
+        & ul {
+            list-style: disc;
+        }
+        & ol {
+            list-style: decimal;
+        }
+        & li + li {
+            margin-top: 0.15em;
+        }
+        & li::marker {
+            color: var(--success);
+        }
+        & code {
+            font-size: 0.92em;
+            padding: 0 0.3em;
+            color: var(--foreground);
+            background: color-mix(in oklch, var(--foreground) 8%, transparent);
+        }
+        & pre {
+            overflow-x: auto;
+            padding: 0.5em 0.75em;
+            background: color-mix(in oklch, var(--foreground) 6%, transparent);
+            & code {
+                padding: 0;
+                background: none;
+            }
+        }
+        & a {
+            color: var(--primary);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+    }
+}

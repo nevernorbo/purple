@@ -20,6 +20,7 @@ describe("runner", () => {
   it("runs the agent in a worktree and lands in Completed with the PR url", async () => {
     const { repo, repoId, git, card } = await readyCard("Add agent file", "Please add AGENT.md")
     const done = waitForCard(card.id, (c) => c.status !== "running")
+    const summarized = waitForCard(card.id, (c) => c.prSummary !== null)
 
     const { status, data: started } = await request("POST", `/cards/${card.id}/start`)
     expect(status).toBe(200)
@@ -39,6 +40,8 @@ describe("runner", () => {
     expect(await git("worktree", "list")).not.toContain(".worktrees")
     expect(await git("log", "--format=%s", "-1", started.branch)).toBe("agent change")
     expect(Runner.running).toBe(0)
+
+    expect((await summarized).prSummary).toBe("- Added `AGENT.md`\n- Kept the symlinks out of the commit")
 
     // Moving out of Completed resets it to backlog.
     const { data: board } = await request("POST", `/repos/${repoId}/columns`, { name: "Again" })
@@ -86,5 +89,22 @@ describe("runner", () => {
     expect(row.status).toBe("failed")
     expect(row.columnId).toBe(ColumnService.system(repoId, "failed").id)
   })
-})
 
+  it("refreshes the PR summary on demand and keeps it unset when gh fails", async () => {
+    const { card } = await readyCard("Summaries", "x")
+    const setPr = (prUrl: string) =>
+      db.update(cards).set({ prUrl, prSummary: null }).where(eq(cards.id, card.id)).run()
+
+    setPr("https://github.com/acme/widgets/pull/404")
+    const failed = await request("POST", `/cards/${card.id}/pr-summary`)
+    expect(failed.status).toBe(200)
+    expect(failed.data.prSummary).toBeNull()
+
+    setPr("https://github.com/acme/widgets/pull/7")
+    const before = db.select().from(cards).where(eq(cards.id, card.id)).get()!
+    const { data: refreshed } = await request("POST", `/cards/${card.id}/pr-summary`)
+    expect(refreshed.prSummary).toStartWith("- Added `AGENT.md`")
+    // Fetching a summary isn't an edit.
+    expect(refreshed.updatedAt).toBe(before.updatedAt)
+  })
+})

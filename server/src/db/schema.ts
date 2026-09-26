@@ -73,6 +73,8 @@ export const cards = sqliteTable(
     branch: text(),
     exitCode: integer(),
     prUrl: text(),
+    /** Summary section of the PR body via `gh`; null until fetched, "" when there is none. */
+    prSummary: text(),
     createdAt: integer().notNull().$defaultFn(now),
     updatedAt: integer().notNull().$defaultFn(now).$onUpdateFn(now),
     startedAt: integer(),

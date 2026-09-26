@@ -15,6 +15,13 @@
       "when": 1790424621331,
       "tag": "0001_card_revisions",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1790426427902,
+      "tag": "0002_card_pr_summary",
+      "breakpoints": true
     }
   ]
 }

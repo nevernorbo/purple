@@ -12,6 +12,7 @@ import { CardService } from "../cards/service"
 import { ColumnService } from "../columns/service"
 import { bus } from "../realtime/bus"
 import { Git } from "./git"
+import { PrSummary } from "./pr"
 import { buildPrompt } from "./prompt"
 import { branchFor, worktreeFromBranch } from "./slug"
 
@@ -65,6 +66,7 @@ export abstract class Runner {
           branch,
           exitCode: null,
           prUrl: null,
+          prSummary: null,
           startedAt: Date.now(),
           finishedAt: null,
           updatedAt: Date.now(),
@@ -161,6 +163,7 @@ export abstract class Runner {
             position: CardService.nextPosition(column.id, tx),
             exitCode: code,
             prUrl,
+            prSummary: null,
             finishedAt: Date.now(),
             updatedAt: Date.now(),
           })
@@ -169,6 +172,8 @@ export abstract class Runner {
         return CardService.get(card.id, tx)
       })
       if (updated) bus.publish({ type: "card.upserted", card: updated })
+      // The card lands in its column right away; the summary follows once gh answers.
+      if (updated?.prUrl) void PrSummary.refresh(updated.id)
     } finally {
       active.delete(card.id)
       publishCount()
