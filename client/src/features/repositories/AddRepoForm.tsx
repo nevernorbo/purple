@@ -3,8 +3,8 @@ import type { Repo } from "purple-server"
 import { useState, type FormEvent } from "react"
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { api, call } from "@/lib/api"
+import { PathInput } from "./PathInput"
 
 export function AddRepoForm({ onAdded }: { onAdded?: (repo: Repo) => void }) {
   const [path, setPath] = useState("")
@@ -24,14 +24,9 @@ export function AddRepoForm({ onAdded }: { onAdded?: (repo: Repo) => void }) {
 
   return (
     <form onSubmit={submit} className="flex gap-2">
-      <Input
-        value={path}
-        onChange={(e) => setPath(e.target.value)}
-        placeholder="/absolute/path/to/repository"
-        aria-label="Repository path"
-        spellCheck={false}
-        className="font-mono"
-      />
+      <div className="min-w-0 flex-1">
+        <PathInput value={path} onChange={setPath} />
+      </div>
       <Button type="submit" disabled={!path.trim() || pending}>
         <FolderPlusIcon data-icon="inline-start" />
         Register

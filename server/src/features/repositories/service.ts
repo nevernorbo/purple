@@ -6,6 +6,7 @@ import type { Repo } from "../../db/types"
 import { fail } from "../../lib/errors"
 import { bus } from "../realtime/bus"
 import { ColumnService } from "../columns/service"
+import { expandHome } from "../filesystem/service"
 import { Git } from "../runner/git"
 
 export abstract class RepoService {
@@ -22,7 +23,7 @@ export abstract class RepoService {
   static async create(path: string): Promise<Repo> {
     let resolved: { root: string; name: string }
     try {
-      resolved = await Git.resolveRoot(path.trim())
+      resolved = await Git.resolveRoot(expandHome(path.trim()))
     } catch (error) {
       throw fail.badRequest((error as Error).message)
     }

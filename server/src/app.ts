@@ -6,6 +6,7 @@ import { config } from "./config"
 import { auth } from "./lib/auth"
 import { cardsController } from "./features/cards"
 import { columnsController } from "./features/columns"
+import { filesystemController } from "./features/filesystem"
 import { labelsController } from "./features/labels"
 import { realtimeController } from "./features/realtime"
 import { repositoriesController } from "./features/repositories"
@@ -16,6 +17,7 @@ export const api = new Elysia({ prefix: "/api" })
   .use(columnsController)
   .use(cardsController)
   .use(labelsController)
+  .use(filesystemController)
 
 export const app = new Elysia().use(api).use(realtimeController)
 
