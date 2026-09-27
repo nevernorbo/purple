@@ -10,14 +10,10 @@ export function Logo({ className }: { className?: string }) {
     >
       <span
         aria-hidden
-        className="bg-linear-to-r from-primary via-primary to-rarity-pink bg-clip-text font-heading text-2xl leading-none font-bold tracking-[0.14em] text-transparent uppercase drop-shadow-[1.5px_1.5px_0_color-mix(in_oklch,var(--primary),black_55%)] group-data-[collapsible=icon]:tracking-normal"
+        className="font-heading text-2xl leading-none font-bold tracking-[0.14em] uppercase drop-shadow-[1.5px_1.5px_0_color-mix(in_oklch,var(--primary),white_40%)] group-data-[collapsible=icon]:tracking-normal dark:text-slate-700"
       >
         P<span className="group-data-[collapsible=icon]:hidden">urple</span>
       </span>
-      <span
-        aria-hidden
-        className="mb-0.5 h-1 w-2.5 bg-rarity-pink shadow-[0_0_8px_var(--rarity-pink)] group-data-[collapsible=icon]:hidden motion-safe:animate-[logo-blink_1.1s_steps(1)_infinite]"
-      />
     </div>
   )
 }

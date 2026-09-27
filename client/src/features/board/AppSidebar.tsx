@@ -120,7 +120,7 @@ export function AppSidebar({
                           />
                         }
                       >
-                        <DotsThreeIcon weight="bold" />
+                        <DotsThreeIcon />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
                         side={isMobile ? "bottom" : "right"}

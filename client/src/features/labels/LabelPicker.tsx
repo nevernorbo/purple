@@ -45,7 +45,6 @@ export function LabelPicker({
               <LabelDot label={label} />
               <span className="flex-1 truncate">{label.name}</span>
               <CheckIcon
-                weight="bold"
                 className={cn("size-3.5 text-primary", !active && "invisible")}
               />
             </button>

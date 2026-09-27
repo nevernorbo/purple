@@ -333,19 +333,6 @@
   backdrop-filter: blur(12px);
 }
 
-/* Dialog / panel title bar, separated from the body by a frame-weight rule. */
-@utility logbook-header {
-  background-image: linear-gradient(
-    180deg,
-    var(--panel-header),
-    color-mix(in oklch, var(--panel-header) 55%, transparent)
-  );
-  border-bottom-width: var(--frame-width);
-  border-bottom-style: solid;
-  border-bottom-color: var(--frame);
-  box-shadow: inset 0 0 10px var(--inner-shadow);
-}
-
 /* Colored title strip (column headers, the menu's "Difficulty" bars). Pick the
    hue with `tint-*` (any theme color); it defaults to the neutral frame. The
    outline is decorative, so focus only needs to recolor it. */

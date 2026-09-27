@@ -135,7 +135,7 @@ export function CardItem({
               />
             }
           >
-            <DotsThreeIcon weight="bold" />
+            <DotsThreeIcon />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-44">
             <DropdownMenuItem onClick={onEdit}>
@@ -246,7 +246,7 @@ function CardAction({ card, hasPrompt }: { card: Card; hasPrompt: boolean }) {
           : card.status === "failed"
             ? {
                 label: "Retry",
-                icon: <ArrowClockwiseIcon weight="bold" />,
+                icon: <ArrowClockwiseIcon />,
                 run: cardActions.start,
               }
             : null

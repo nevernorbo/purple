@@ -19,19 +19,19 @@ export const SYSTEM_META: Record<
   }
 > = {
   running: {
-    icon: <CircleNotchIcon className="size-4" />,
+    icon: <CircleNotchIcon className="size-6" />,
     empty: "No Active Runs",
     tint: "tint-primary",
     text: "text-primary",
   },
   completed: {
-    icon: <CheckCircleIcon className="size-4" />,
+    icon: <CheckCircleIcon className="size-6" />,
     empty: "No Completed Runs",
     tint: "tint-success",
     text: "text-success",
   },
   failed: {
-    icon: <XCircleIcon className="size-4" />,
+    icon: <XCircleIcon className="size-6" />,
     empty: "No Failed Runs",
     tint: "tint-destructive",
     text: "text-destructive",

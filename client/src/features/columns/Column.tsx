@@ -222,7 +222,7 @@ export function Column({
                 />
               }
             >
-              <DotsThreeIcon weight="bold" />
+              <DotsThreeIcon />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">
               <DropdownMenuItem onClick={startRename}>
