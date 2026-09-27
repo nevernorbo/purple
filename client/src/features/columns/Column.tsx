@@ -13,6 +13,7 @@ import {
 import type { Card, Column as ColumnType, Label } from "purple-server"
 import { useState } from "react"
 
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -106,7 +107,10 @@ export function Column({
         aria-label={column.name}
         className="relative flex max-h-full w-16 shrink-0 flex-col items-center hud-panel"
       >
-        <span aria-hidden className={cn("h-0.5 w-full", system.accent)} />
+        <span
+          aria-hidden
+          className={cn("h-1 w-full bg-(--tint)", system.tint)}
+        />
         <button
           type="button"
           onClick={onToggleCollapsed}
@@ -115,9 +119,7 @@ export function Column({
           className="flex w-full flex-1 flex-col items-center gap-3 px-1 py-3 outline-none hover:bg-foreground/5 focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset"
         >
           <span className={system.text}>{system.icon}</span>
-          <span className="border px-1 hud-caps font-bold text-muted-foreground tabular-nums">
-            {count}
-          </span>
+          <Badge variant="count">{count}</Badge>
           <span className="hud-caps text-xl font-bold tracking-wider [writing-mode:vertical-rl]">
             {column.name}
           </span>
@@ -132,25 +134,20 @@ export function Column({
       style={{ transform: CSS.Translate.toString(transform), transition }}
       aria-label={column.name}
       className={cn(
-        "group/column hud-corners relative flex shrink-0 flex-col hud-panel",
+        "group/column hud-corners relative flex shrink-0 flex-col hud-panel p-1.5",
         mobile ? "h-full w-full" : "max-h-full w-80",
-        hasRunning && "border-primary/40",
+        hasRunning && "border-primary/50",
         isDragging && "z-10 opacity-80 shadow-2xl"
       )}
     >
-      {system && (
-        <span
-          aria-hidden
-          className={cn("absolute inset-x-0 top-0 h-0.5", system.accent)}
-        />
-      )}
       <header
         ref={setActivatorNodeRef}
         {...(draggable ? { ...attributes, ...listeners } : {})}
         // The header holds its own buttons; it's announced as sortable, not as a button.
         role={undefined}
         className={cn(
-          "flex h-14 shrink-0 items-center gap-2 border-b bg-panel-header/60 px-3 outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset",
+          "flex h-14 shrink-0 items-center gap-2 hud-strip px-3 focus-visible:outline-ring",
+          system?.tint,
           draggable && "cursor-grab",
           isDragging && "cursor-grabbing"
         )}
@@ -199,9 +196,9 @@ export function Column({
           </>
         )}
         {!renaming && (
-          <span className="ml-auto min-w-6 border bg-background/40 px-1.5 text-center hud-caps text-sm leading-5 font-bold text-muted-foreground tabular-nums">
+          <Badge variant="count" className="ml-auto">
             {count}
-          </span>
+          </Badge>
         )}
         {onToggleCollapsed && !renaming && (
           <Button

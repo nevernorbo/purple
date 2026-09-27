@@ -14,6 +14,7 @@ import {
 } from "react"
 
 import { Button } from "@/components/ui/button"
+import { Kbd } from "@/components/ui/kbd"
 import {
   Dialog,
   DialogContent,
@@ -224,7 +225,8 @@ function CardForm({ ref, card }: { ref: Ref<CardFormHandle>; card: Card }) {
               <span className="text-warning">Unsaved changes</span>
               <span className="max-sm:hidden">
                 {" "}
-                · <Kbd>⌘S</Kbd> or close to save
+                · <Kbd className="text-[11px] text-foreground">⌘S</Kbd> or close
+                to save
               </span>
             </>
           ) : (
@@ -232,7 +234,8 @@ function CardForm({ ref, card }: { ref: Ref<CardFormHandle>; card: Card }) {
               All changes saved
               <span className="max-sm:hidden">
                 {" "}
-                · <Kbd>@</Kbd> reference a file
+                · <Kbd className="text-[11px] text-foreground">@</Kbd> reference
+                a file
               </span>
             </>
           )}
@@ -253,14 +256,6 @@ function CardForm({ ref, card }: { ref: Ref<CardFormHandle>; card: Card }) {
         </Button>
       </DialogFooter>
     </div>
-  )
-}
-
-function Kbd({ children }: { children: string }) {
-  return (
-    <kbd className="border bg-background/50 px-1 py-px font-mono text-[11px] text-foreground">
-      {children}
-    </kbd>
   )
 }
 

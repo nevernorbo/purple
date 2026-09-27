@@ -8,503 +8,770 @@
 
 /* Risk of Rain 2's UI face. One weight only; see font-synthesis below. */
 @font-face {
-    font-family: "Bombardier";
-    src:
-        url("/bombardier/BOMBARD_.otf") format("opentype"),
-        url("/bombardier/BOMBARD_.ttf") format("truetype");
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
+  font-family: "Bombardier";
+  src:
+    url("/bombardier/BOMBARD_.otf") format("opentype"),
+    url("/bombardier/BOMBARD_.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
 @theme inline {
-    --font-sans: 'Bombardier', ui-sans-serif, system-ui, sans-serif;
-    --font-heading: 'Bombardier', ui-sans-serif, system-ui, sans-serif;
-    --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --font-sans: "Bombardier", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Bombardier", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
 
-    --color-rarity-common: var(--rarity-common);
-    --color-rarity-uncommon: var(--rarity-uncommon);
-    --color-rarity-legendary: var(--rarity-legendary);
-    --color-rarity-boss: var(--rarity-boss);
-    --color-rarity-lunar: var(--rarity-lunar);
-    --color-rarity-void: var(--rarity-void);
-    --color-rarity-equipment: var(--rarity-equipment);
-    --color-rarity-pink: var(--rarity-pink);
-    --color-success: var(--success);
-    --color-warning: var(--warning);
-    --color-panel: var(--panel);
-    --color-panel-header: var(--panel-header);
-    --color-edge: var(--edge);
-    --color-glow: var(--glow);
+  --color-rarity-common: var(--rarity-common);
+  --color-rarity-uncommon: var(--rarity-uncommon);
+  --color-rarity-legendary: var(--rarity-legendary);
+  --color-rarity-boss: var(--rarity-boss);
+  --color-rarity-lunar: var(--rarity-lunar);
+  --color-rarity-void: var(--rarity-void);
+  --color-rarity-equipment: var(--rarity-equipment);
+  --color-rarity-pink: var(--rarity-pink);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-panel: var(--panel);
+  --color-panel-header: var(--panel-header);
+  --color-edge: var(--edge);
+  --color-glow: var(--glow);
+  --color-frame: var(--frame);
+  --color-frame-outline: var(--frame-outline);
+  --color-action: var(--action);
+  --color-neutral-button: var(--neutral-button);
 
-    --color-sidebar-ring: var(--sidebar-ring);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar: var(--sidebar);
-    --color-chart-5: var(--chart-5);
-    --color-chart-4: var(--chart-4);
-    --color-chart-3: var(--chart-3);
-    --color-chart-2: var(--chart-2);
-    --color-chart-1: var(--chart-1);
-    --color-ring: var(--ring);
-    --color-input: var(--input);
-    --color-border: var(--border);
-    --color-destructive: var(--destructive);
-    --color-accent-foreground: var(--accent-foreground);
-    --color-accent: var(--accent);
-    --color-muted-foreground: var(--muted-foreground);
-    --color-muted: var(--muted);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-secondary: var(--secondary);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-primary: var(--primary);
-    --color-popover-foreground: var(--popover-foreground);
-    --color-popover: var(--popover);
-    --color-card-foreground: var(--card-foreground);
-    --color-card: var(--card);
-    --color-foreground: var(--foreground);
-    --color-background: var(--background);
-    --radius-sm: calc(var(--radius) * 0.6);
-    --radius-md: calc(var(--radius) * 0.8);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) * 1.4);
-    --radius-2xl: calc(var(--radius) * 1.8);
-    --radius-3xl: calc(var(--radius) * 2.2);
-    --radius-4xl: calc(var(--radius) * 2.6);
+  /* `shadow-frame`: the thin dark line around every frame. `inset-shadow-hud*`:
+     the soft inner shadow, by surface size. */
+  --shadow-frame: 0 0 0 1px var(--frame-outline);
+  --inset-shadow-hud-sm: inset 0 0 4px var(--inner-shadow);
+  --inset-shadow-hud: inset 0 0 8px var(--inner-shadow);
+  --inset-shadow-hud-lg: inset 0 0 14px var(--inner-shadow);
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 /* Light: pale snow — cool off-white surfaces, slate text, deepened rarity hues. */
 :root {
-    --radius: 0rem;
+  --radius: 0rem;
 
-    --rarity-common: oklch(0.45 0.02 250);
-    --rarity-uncommon: oklch(0.48 0.15 145);
-    --rarity-legendary: oklch(0.52 0.2 25);
-    --rarity-boss: oklch(0.5 0.115 80);
-    --rarity-lunar: oklch(0.5 0.14 245);
-    --rarity-void: oklch(0.5 0.22 305);
-    --rarity-equipment: oklch(0.52 0.15 50);
-    --rarity-pink: oklch(0.54 0.19 355);
-    --success: var(--rarity-uncommon);
-    --warning: var(--rarity-boss);
+  /* HUD geometry. Every frame, tick and chamfer derives from these. */
+  --frame-width: 3px; /* panels, cards, fields, strips, corner ticks */
+  --frame-width-sm: 2px; /* tabs, chips, kbd */
+  --button-cut: 7px; /* chamfer size; per element with `[--cut:5px]` */
+  --button-rim-width: 2px;
+  --tick-length: 14px;
 
-    --background: oklch(0.955 0.008 240);
-    --foreground: oklch(0.24 0.03 255);
-    --card: oklch(0.99 0.004 240);
-    --card-foreground: var(--foreground);
-    --popover: oklch(0.985 0.005 240 / 0.96);
-    --popover-foreground: var(--foreground);
-    --primary: var(--rarity-void);
-    --primary-foreground: oklch(0.99 0 0);
-    --secondary: oklch(0.915 0.013 245);
-    --secondary-foreground: var(--foreground);
-    --muted: oklch(0.93 0.01 245);
-    --muted-foreground: oklch(0.48 0.025 255);
-    --accent: oklch(0.9 0.025 285);
-    --accent-foreground: oklch(0.22 0.04 290);
-    --destructive: var(--rarity-legendary);
-    --border: oklch(0.3 0.04 255 / 16%);
-    --input: oklch(0.3 0.04 255 / 22%);
-    --ring: var(--rarity-void);
+  --rarity-common: oklch(0.45 0.02 250);
+  --rarity-uncommon: oklch(0.48 0.15 145);
+  --rarity-legendary: oklch(0.52 0.2 25);
+  --rarity-boss: oklch(0.5 0.115 80);
+  --rarity-lunar: oklch(0.5 0.14 245);
+  --rarity-void: oklch(0.5 0.22 305);
+  --rarity-equipment: oklch(0.52 0.15 50);
+  --rarity-pink: oklch(0.54 0.19 355);
+  --success: var(--rarity-uncommon);
+  --warning: var(--rarity-boss);
 
-    --panel: oklch(0.975 0.006 240 / 0.78);
-    --panel-header: oklch(0.915 0.015 245 / 0.92);
-    --edge: oklch(1 0 0 / 90%);
-    --tick: oklch(0.3 0.04 255 / 55%);
-    --glow: oklch(0.5 0.22 305 / 0.3);
-    --shadow-color: oklch(0.3 0.04 255 / 0.18);
+  --background: oklch(0.955 0.008 240);
+  --foreground: oklch(0.24 0.03 255);
+  --card: oklch(0.99 0.004 240);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.985 0.005 240 / 0.96);
+  --popover-foreground: var(--foreground);
+  --primary: var(--rarity-void);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.915 0.013 245);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.93 0.01 245);
+  --muted-foreground: oklch(0.48 0.025 255);
+  --accent: oklch(0.9 0.025 285);
+  --accent-foreground: oklch(0.22 0.04 290);
+  --destructive: var(--rarity-legendary);
+  --border: oklch(0.3 0.04 255 / 16%);
+  --input: oklch(0.3 0.04 255 / 22%);
+  --ring: var(--rarity-void);
 
-    --chart-1: var(--rarity-void);
-    --chart-2: var(--rarity-uncommon);
-    --chart-3: var(--rarity-lunar);
-    --chart-4: var(--rarity-boss);
-    --chart-5: var(--rarity-legendary);
+  --panel: oklch(0.975 0.006 240 / 0.78);
+  --panel-header: oklch(0.915 0.015 245 / 0.92);
+  --edge: oklch(1 0 0 / 90%);
+  --tick: oklch(64.341% 0.00007 271.152);
+  --glow: oklch(0.5 0.22 305 / 0.3);
+  --shadow-color: oklch(0.3 0.04 255 / 0.1);
+  --frame: oklch(0.8 0.015 250);
+  --frame-outline: oklch(0.3 0.04 255 / 0.18);
+  --inner-shadow: oklch(0.3 0.04 255 / 0.07);
+  --text-shadow: oklch(1 0 0 / 0.6);
+  --action: oklch(0.62 0.19 140);
+  --neutral-button: oklch(0.5 0.012 255);
 
-    --sidebar: oklch(0.935 0.012 245 / 0.92);
-    --sidebar-foreground: var(--foreground);
-    --sidebar-primary: var(--primary);
-    --sidebar-primary-foreground: var(--primary-foreground);
-    --sidebar-accent: oklch(0.89 0.02 250);
-    --sidebar-accent-foreground: var(--foreground);
-    --sidebar-border: var(--border);
-    --sidebar-ring: var(--ring);
+  --chart-1: var(--rarity-void);
+  --chart-2: var(--rarity-uncommon);
+  --chart-3: var(--rarity-lunar);
+  --chart-4: var(--rarity-boss);
+  --chart-5: var(--rarity-legendary);
 
-    --page-bg:
-        radial-gradient(90% 60% at 12% -10%, oklch(0.9 0.04 235 / 0.9), transparent 60%),
-        radial-gradient(120% 70% at 50% 115%, oklch(0.88 0.05 300 / 0.55), transparent 60%),
-        linear-gradient(180deg, oklch(0.965 0.008 240), oklch(0.93 0.012 245));
-    --page-vignette: radial-gradient(ellipse at center, transparent 60%, oklch(0.4 0.04 255 / 0.12));
-    --grain-opacity: 0.05;
+  --sidebar: oklch(0.935 0.012 245 / 0.92);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: oklch(0.89 0.02 250);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+
+  --page-bg:
+    radial-gradient(
+      90% 60% at 12% -10%,
+      oklch(0.9 0.04 235 / 0.9),
+      transparent 60%
+    ),
+    radial-gradient(
+      120% 70% at 50% 115%,
+      oklch(0.88 0.05 300 / 0.55),
+      transparent 60%
+    ),
+    linear-gradient(180deg, oklch(0.965 0.008 240), oklch(0.93 0.012 245));
+  --page-vignette: radial-gradient(
+    ellipse at center,
+    transparent 60%,
+    oklch(0.4 0.04 255 / 0.12)
+  );
+  --grain-opacity: 0.05;
 }
 
 /* Dark: in-run HUD — near-black blue sky, translucent slate panels, void glow. */
 .dark {
-    --rarity-common: oklch(0.93 0.01 250);
-    --rarity-uncommon: oklch(0.78 0.2 145);
-    --rarity-legendary: oklch(0.66 0.22 25);
-    --rarity-boss: oklch(0.87 0.17 95);
-    --rarity-lunar: oklch(0.72 0.14 240);
-    --rarity-void: oklch(0.7 0.2 305);
-    --rarity-equipment: oklch(0.76 0.16 60);
-    --rarity-pink: oklch(0.76 0.16 355);
+  --rarity-common: oklch(0.93 0.01 250);
+  --rarity-uncommon: oklch(0.78 0.2 145);
+  --rarity-legendary: oklch(0.66 0.22 25);
+  --rarity-boss: oklch(0.87 0.17 95);
+  --rarity-lunar: oklch(0.72 0.14 240);
+  --rarity-void: oklch(0.7 0.2 305);
+  --rarity-equipment: oklch(0.76 0.16 60);
+  --rarity-pink: oklch(0.76 0.16 355);
 
-    --background: oklch(0.16 0.015 255);
-    --foreground: oklch(0.95 0.01 250);
-    --card: oklch(0.245 0.022 255);
-    --card-foreground: var(--foreground);
-    --popover: oklch(0.21 0.022 255 / 0.95);
-    --popover-foreground: var(--foreground);
-    --primary: var(--rarity-void);
-    --primary-foreground: oklch(0.16 0.04 305);
-    --secondary: oklch(0.29 0.025 255);
-    --secondary-foreground: var(--foreground);
-    --muted: oklch(0.27 0.02 255);
-    --muted-foreground: oklch(0.72 0.02 250);
-    --accent: oklch(0.32 0.05 290);
-    --accent-foreground: var(--foreground);
-    --destructive: var(--rarity-legendary);
-    --border: oklch(1 0 0 / 13%);
-    --input: oklch(1 0 0 / 17%);
-    --ring: var(--rarity-void);
+  --background: oklch(0.16 0.015 255);
+  --foreground: oklch(0.95 0.01 250);
+  --card: oklch(0.245 0.022 255);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.21 0.022 255 / 0.95);
+  --popover-foreground: var(--foreground);
+  --primary: var(--rarity-void);
+  --primary-foreground: oklch(0.16 0.04 305);
+  --secondary: oklch(0.29 0.025 255);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.27 0.02 255);
+  --muted-foreground: oklch(0.72 0.02 250);
+  --accent: oklch(0.32 0.05 290);
+  --accent-foreground: var(--foreground);
+  --destructive: var(--rarity-legendary);
+  --border: oklch(1 0 0 / 13%);
+  --input: oklch(1 0 0 / 17%);
+  --ring: var(--rarity-void);
 
-    --panel: oklch(0.2 0.02 255 / 0.72);
-    --panel-header: oklch(0.28 0.03 255 / 0.85);
-    --edge: oklch(1 0 0 / 22%);
-    --tick: oklch(1 0 0 / 55%);
-    --glow: oklch(0.7 0.2 305 / 0.5);
-    --shadow-color: oklch(0 0 0 / 0.55);
+  --panel: oklch(0.2 0.02 255 / 0.72);
+  --panel-header: oklch(0.28 0.03 255 / 0.85);
+  --edge: oklch(1 0 0 / 22%);
+  --tick: oklch(61.335% 0.00007 271.152);
+  --glow: oklch(0.7 0.2 305 / 0.5);
+  --shadow-color: oklch(0 0 0 / 0.55);
+  --frame: oklch(0.44 0.015 255);
+  --frame-outline: oklch(0 0 0 / 0.7);
+  --inner-shadow: oklch(0 0 0 / 0.55);
+  --text-shadow: oklch(0 0 0 / 0.9);
 
-    --sidebar: oklch(0.185 0.022 258 / 0.88);
-    --sidebar-accent: oklch(0.28 0.03 260);
-    --sidebar-accent-foreground: var(--foreground);
+  --sidebar: oklch(0.185 0.022 258 / 0.88);
+  --sidebar-accent: oklch(0.28 0.03 260);
+  --sidebar-accent-foreground: var(--foreground);
 
-    --page-bg:
-        radial-gradient(90% 60% at 12% -10%, oklch(0.34 0.05 240 / 0.45), transparent 60%),
-        radial-gradient(120% 70% at 50% 115%, oklch(0.34 0.1 300 / 0.4), transparent 60%),
-        linear-gradient(180deg, oklch(0.18 0.02 255), oklch(0.13 0.015 262));
-    --page-vignette: radial-gradient(ellipse at center, transparent 50%, oklch(0 0 0 / 0.5));
-    --grain-opacity: 0.07;
+  --page-bg:
+    radial-gradient(
+      90% 60% at 12% -10%,
+      oklch(0.34 0.05 240 / 0.45),
+      transparent 60%
+    ),
+    radial-gradient(
+      120% 70% at 50% 115%,
+      oklch(0.34 0.1 300 / 0.4),
+      transparent 60%
+    ),
+    linear-gradient(180deg, oklch(0.18 0.02 255), oklch(0.13 0.015 262));
+  --page-vignette: radial-gradient(
+    ellipse at center,
+    transparent 50%,
+    oklch(0 0 0 / 0.5)
+  );
+  --grain-opacity: 0.07;
 }
 
 @layer base {
-    * {
-        @apply border-border outline-ring/50;
-    }
-    button:not(:disabled):not([aria-disabled="true"]):not([data-disabled]),
-    [role="button"]:not(:disabled):not([aria-disabled="true"]):not([data-disabled]) {
-        @apply cursor-pointer;
-    }
-    html {
-        @apply font-sans;
-        color-scheme: light;
-        /* Bombardier ships a single weight; never fake bold or italics. */
-        font-synthesis: none;
-    }
-    html.dark {
-        color-scheme: dark;
-    }
-    body {
-        @apply bg-background text-foreground antialiased;
-        background-image: var(--page-bg);
-        background-attachment: fixed;
-    }
-    /* Vignette and film grain sit behind the app, over the sky gradient. */
-    body::before,
-    body::after {
-        content: "";
-        position: fixed;
-        inset: 0;
-        pointer-events: none;
-        z-index: 0;
-    }
-    body::before {
-        background: var(--page-vignette);
-    }
-    body::after {
-        opacity: var(--grain-opacity);
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    }
-    #root {
-        position: relative;
-        z-index: 1;
-    }
+  * {
+    @apply border-border outline-ring/50;
+  }
+  button:not(:disabled):not([aria-disabled="true"]):not([data-disabled]),
+  [role="button"]:not(:disabled):not([aria-disabled="true"]):not(
+      [data-disabled]
+    ) {
+    @apply cursor-pointer;
+  }
+  html {
+    @apply font-sans;
+    color-scheme: light;
+    /* Bombardier ships a single weight; never fake bold or italics. */
+    font-synthesis: none;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    background-image: var(--page-bg);
+    background-attachment: fixed;
+  }
+  /* Vignette and film grain sit behind the app, over the sky gradient. */
+  body::before,
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::before {
+    background: var(--page-vignette);
+  }
+  body::after {
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  #root {
+    position: relative;
+    z-index: 1;
+  }
 }
 
-/* Translucent HUD panel: glassy fill, hairline border, bright top edge. */
+/* Menu-style chrome, after Risk of Rain 2: thick frames with a thin dark outline
+   around them, soft inner shadows, and drop-shadowed caps text.
+
+   Colors come from the tokens above; sizes from the geometry tokens on :root.
+   The utilities set borders and backgrounds with longhand properties only, which
+   makes Tailwind emit them before its own border-* / bg-* classes, so a plain
+   `border-primary` or `bg-card` next to one of these still overrides it. */
+
+/* Translucent panel: glassy fill inside a thick frame. */
 @utility hud-panel {
-    background-color: var(--panel);
-    border: 1px solid var(--border);
-    box-shadow:
-        inset 0 1px 0 var(--edge),
-        0 10px 30px -18px var(--shadow-color);
-    backdrop-filter: blur(10px);
+  background-color: var(--panel);
+  border-width: var(--frame-width);
+  border-style: solid;
+  border-color: var(--frame);
+  box-shadow:
+    var(--shadow-frame),
+    var(--inset-shadow-hud-lg),
+    0 10px 30px -18px var(--shadow-color);
+  backdrop-filter: blur(10px);
 }
 
 /* Floating surfaces (menus, popovers, dialogs). Replaces shadcn's ring + shadow. */
 @utility hud-popup {
-    border: 1px solid var(--border);
-    box-shadow:
-        inset 0 1px 0 var(--edge),
-        0 18px 40px -14px var(--shadow-color);
-    backdrop-filter: blur(12px);
+  border-width: var(--frame-width);
+  border-style: solid;
+  border-color: var(--frame);
+  box-shadow:
+    var(--shadow-frame),
+    var(--inset-shadow-hud-lg),
+    0 18px 40px -14px var(--shadow-color);
+  backdrop-filter: blur(12px);
 }
 
-/* L-shaped ticks on all four corners, drawn on ::before. The host must be positioned. */
-@utility hud-corners {
-    &::before {
-        content: "";
-        position: absolute;
-        inset: -1px;
-        pointer-events: none;
-        z-index: 1;
-        --tick-len: 10px;
-        --tick-w: 2px;
-        background:
-            linear-gradient(var(--tick), var(--tick)) top left / var(--tick-len) var(--tick-w) no-repeat,
-            linear-gradient(var(--tick), var(--tick)) top left / var(--tick-w) var(--tick-len) no-repeat,
-            linear-gradient(var(--tick), var(--tick)) top right / var(--tick-len) var(--tick-w) no-repeat,
-            linear-gradient(var(--tick), var(--tick)) top right / var(--tick-w) var(--tick-len) no-repeat,
-            linear-gradient(var(--tick), var(--tick)) bottom left / var(--tick-len) var(--tick-w) no-repeat,
-            linear-gradient(var(--tick), var(--tick)) bottom left / var(--tick-w) var(--tick-len) no-repeat,
-            linear-gradient(var(--tick), var(--tick)) bottom right / var(--tick-len) var(--tick-w) no-repeat,
-            linear-gradient(var(--tick), var(--tick)) bottom right / var(--tick-w) var(--tick-len) no-repeat;
-    }
+/* Full-width bar across the top of a view (board header, mobile tab strip). */
+@utility hud-bar {
+  background-color: color-mix(in oklch, var(--panel) 70%, transparent);
+  border-bottom-width: var(--frame-width);
+  border-bottom-style: solid;
+  border-bottom-color: var(--frame);
+  box-shadow:
+    0 1px 0 var(--frame-outline),
+    var(--inset-shadow-hud-lg);
+  backdrop-filter: blur(12px);
 }
 
-/* Logbook-style bevelled header strip with an accent underline. */
+/* Dialog / panel title bar, separated from the body by a frame-weight rule. */
 @utility logbook-header {
-    background-image: linear-gradient(180deg, var(--panel-header), color-mix(in oklch, var(--panel-header) 55%, transparent));
-    border-bottom: 1px solid var(--border);
-    box-shadow:
-        inset 0 1px 0 var(--edge),
-        inset 0 -1px 0 color-mix(in oklch, var(--primary) 35%, transparent);
+  background-image: linear-gradient(
+    180deg,
+    var(--panel-header),
+    color-mix(in oklch, var(--panel-header) 55%, transparent)
+  );
+  border-bottom-width: var(--frame-width);
+  border-bottom-style: solid;
+  border-bottom-color: var(--frame);
+  box-shadow: inset 0 0 10px var(--inner-shadow);
+}
+
+/* Colored title strip (column headers, the menu's "Difficulty" bars). Pick the
+   hue with `tint-*` (any theme color); it defaults to the neutral frame. The
+   outline is decorative, so focus only needs to recolor it. */
+@utility hud-strip {
+  --_strip: var(--tint, var(--frame));
+  background-color: color-mix(in oklch, var(--_strip) 30%, transparent);
+  border-width: var(--frame-width);
+  border-style: solid;
+  border-color: var(--_strip);
+  box-shadow: inset 0 0 4px var(--_strip);
+  outline: 2px solid color-mix(in oklch, var(--_strip) 20%, transparent);
+  &:focus-visible {
+    outline-color: var(--ring);
+  }
+}
+
+/* `tint-primary`, `tint-success`, …: sets `--tint` for `hud-strip`, and for solid
+   swatches via `bg-(--tint)`. */
+@utility tint-* {
+  --tint: --value(--color-*);
+}
+
+/* A tab or segment ("Overview | Skills | Loadout"). Selected (aria-selected,
+   aria-pressed or aria-checked) turns grey and gets a bright outline floating
+   just off the element. Tune per use with `--tab-border-width` and
+   `--tab-outline-offset`. */
+@utility hud-tab {
+  border-width: var(--tab-border-width, var(--frame-width-sm));
+  border-style: solid;
+  border-color: var(--frame);
+  background-color: var(--panel);
+  color: var(--muted-foreground);
+  box-shadow: var(--inset-shadow-hud-sm);
+  outline-offset: var(--tab-outline-offset, 2px);
+  &:hover {
+    color: var(--foreground);
+  }
+  &:is([aria-selected="true"], [aria-pressed="true"], [aria-checked="true"]) {
+    border-color: color-mix(in oklch, var(--foreground) 70%, transparent);
+    background-color: var(--secondary);
+    color: var(--foreground);
+    outline: 2px solid var(--foreground);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--ring);
+  }
+}
+
+/* Chamfered game-menu button ("Ready"): all four corners cut at 45°, a thin dark
+   edge, a lighter rim, and a flat fill, with heavy drop-shadowed text. Color it
+   with `btn-*` (filled) or `plate-*` (neutral plate); size the cut with `--cut`.
+
+   A border can't follow a clip-path, so the frame is three stacked chamfered
+   layers: the element's own background image is the edge (an image, so hover
+   bg-* classes from wrappers like the sidebar can't paint over it), ::before the
+   rim, ::after the fill. `isolation` keeps the pseudo-elements above the edge but
+   under the label. Each inner layer's cut shrinks by inset·tan(22.5°) so the
+   diagonal bands stay as thick as the straight ones.
+
+   Lower level than btn-* and plate-*: `--btn` (edge and rim are mixed from it), or
+   `--btn-fill`, `--btn-rim`, `--btn-edge` individually. clip-path also clips
+   outlines, so focus thickens and recolors the edge instead. */
+@utility hud-button {
+  --_cut: var(--cut, var(--button-cut));
+  --_fill: var(--btn-fill, var(--btn));
+  --_rim: var(--btn-rim, color-mix(in oklch, var(--btn), white 30%));
+  --_edge: var(--btn-edge, color-mix(in oklch, var(--btn), black 70%));
+  --_edge-w: var(--btn-edge-w, 1px);
+  --_rim-w: var(--button-rim-width);
+  --caps-shadow: 2px 2px 1px var(--_edge);
+  position: relative;
+  isolation: isolate;
+  background-image: linear-gradient(var(--_edge), var(--_edge));
+  clip-path: polygon(
+    var(--_cut) 0,
+    calc(100% - var(--_cut)) 0,
+    100% var(--_cut),
+    100% calc(100% - var(--_cut)),
+    calc(100% - var(--_cut)) 100%,
+    var(--_cut) 100%,
+    0 calc(100% - var(--_cut)),
+    0 var(--_cut)
+  );
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+    clip-path: polygon(
+      var(--c) 0,
+      calc(100% - var(--c)) 0,
+      100% var(--c),
+      100% calc(100% - var(--c)),
+      calc(100% - var(--c)) 100%,
+      var(--c) 100%,
+      0 calc(100% - var(--c)),
+      0 var(--c)
+    );
+  }
+  &::before {
+    inset: var(--_edge-w);
+    --c: calc(var(--_cut) - var(--_edge-w) * 0.414);
+    background: var(--_rim);
+  }
+  &::after {
+    inset: calc(var(--_edge-w) + var(--_rim-w));
+    --c: calc(var(--_cut) - (var(--_edge-w) + var(--_rim-w)) * 0.414);
+    background: var(--_fill);
+  }
+  & svg {
+    filter: drop-shadow(2px 2px 0 var(--_edge));
+  }
+  &:focus-visible {
+    --btn-edge: var(--ring);
+    --btn-edge-w: 3px;
+  }
+}
+
+/* `btn-action`, `btn-destructive`, `btn-rarity-lunar`, …: a filled hud-button in
+   that theme color, white label, brightening on hover. */
+@utility btn-* {
+  --btn: --value(--color-*);
+  color: white;
+  &:hover {
+    filter: brightness(1.1);
+  }
+}
+
+/* `plate-panel`, `plate-secondary`, …: a neutral hud-button filled with that
+   color, framed like a panel, whose rim lights up on hover or while open. */
+@utility plate-* {
+  --btn-fill: --value(--color-*);
+  --btn-rim: var(--frame);
+  --btn-edge: var(--frame-outline);
+  color: var(--foreground);
+  &:hover,
+  &[aria-expanded="true"] {
+    --btn-rim: var(--primary);
+  }
+}
+
+/* Mitred corner pieces laid over the host's frame, like the corners of a picture
+   frame: each L is exactly frame-thick and both arm ends are cut at 45°, so the
+   outer edge runs longer than the inner one. The host must be positioned.
+
+   All four corners are one clip-path polygon. Each corner is traced as a closed
+   loop, and the loops are joined by out-and-back runs along the box edges, which
+   enclose no area and so paint nothing. */
+@utility hud-corners {
+  &::before {
+    content: "";
+    position: absolute;
+    inset: calc(var(--frame-width) * -1);
+    pointer-events: none;
+    z-index: 1;
+    --l: var(--tick-length);
+    --w: var(--frame-width);
+    --lw: calc(var(--l) - var(--w));
+    background: var(--tick);
+    clip-path: polygon(
+      /* top left */ 0 0,
+      var(--l) 0,
+      var(--lw) var(--w),
+      var(--w) var(--w),
+      var(--w) var(--lw),
+      0 var(--l),
+      0 0,
+      /* top right */ 100% 0,
+      100% var(--l),
+      calc(100% - var(--w)) var(--lw),
+      calc(100% - var(--w)) var(--w),
+      calc(100% - var(--lw)) var(--w),
+      calc(100% - var(--l)) 0,
+      100% 0,
+      /* bottom right */ 100% 100%,
+      calc(100% - var(--l)) 100%,
+      calc(100% - var(--lw)) calc(100% - var(--w)),
+      calc(100% - var(--w)) calc(100% - var(--w)),
+      calc(100% - var(--w)) calc(100% - var(--lw)),
+      100% calc(100% - var(--l)),
+      100% 100%,
+      /* bottom left */ 0 100%,
+      0 calc(100% - var(--l)),
+      var(--w) calc(100% - var(--lw)),
+      var(--w) calc(100% - var(--w)),
+      var(--lw) calc(100% - var(--w)),
+      var(--l) 100%,
+      0 100%,
+      /* retrace the bottom and right edges back to the start */ 100% 100%,
+      100% 0
+    );
+  }
 }
 
 /* Condensed all-caps display text. */
 @utility hud-caps {
-    font-family: var(--font-heading);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-shadow: var(--caps-shadow, 1px 1px 0 var(--text-shadow));
 }
 
 @utility glow-primary {
-    box-shadow:
-        0 0 0 1px color-mix(in oklch, var(--primary) 55%, transparent),
-        0 0 18px -4px var(--glow);
+  box-shadow:
+    0 0 0 1px color-mix(in oklch, var(--primary) 55%, transparent),
+    0 0 18px -4px var(--glow);
 }
 
 @utility animate-glow {
-    animation: hud-glow 2.4s ease-in-out infinite;
-    @media (prefers-reduced-motion: reduce) {
-        animation: none;
-    }
+  animation: hud-glow 2.4s ease-in-out infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 }
 
 @keyframes hud-glow {
-    0%,
-    100% {
-        box-shadow:
-            0 0 0 1px color-mix(in oklch, var(--primary) 45%, transparent),
-            0 0 10px -6px var(--glow);
-    }
-    50% {
-        box-shadow:
-            0 0 0 1px color-mix(in oklch, var(--primary) 75%, transparent),
-            0 0 22px -4px var(--glow);
-    }
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px color-mix(in oklch, var(--primary) 45%, transparent),
+      0 0 10px -6px var(--glow);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px color-mix(in oklch, var(--primary) 75%, transparent),
+      0 0 22px -4px var(--glow);
+  }
+}
+
+/* The logo's block cursor. */
+@keyframes logo-blink {
+  50% {
+    opacity: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .animate-ping,
-    .animate-pulse {
-        animation: none;
-    }
+  .animate-ping,
+  .animate-pulse {
+    animation: none;
+  }
 }
 
 /* Rich prompt editor. Bombardier has one weight, so body copy uses JetBrains Mono
    (variable weight + true italics); headings keep the HUD display font. */
 @layer components {
-    .prompt-prose {
-        font-family: var(--font-mono);
-        font-size: 0.875rem;
-        line-height: 1.65;
-        color: var(--foreground);
-        overflow-wrap: anywhere;
+  .prompt-prose {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.65;
+    color: var(--foreground);
+    overflow-wrap: anywhere;
 
-        & > * + * {
-            margin-top: 0.75em;
-        }
-        & h1,
-        & h2,
-        & h3 {
-            font-family: var(--font-heading);
-            letter-spacing: 0.03em;
-            line-height: 1.25;
-            margin-top: 1.25em;
-        }
-        & > :first-child {
-            margin-top: 0;
-        }
-        & h1 {
-            font-size: 1.5rem;
-        }
-        & h2 {
-            font-size: 1.25rem;
-        }
-        & h3 {
-            font-size: 1.075rem;
-        }
-        & strong {
-            font-weight: 700;
-        }
-        & em {
-            font-style: italic;
-        }
-        & a {
-            color: var(--primary);
-            text-decoration: underline;
-            text-underline-offset: 3px;
-        }
-        & ul,
-        & ol {
-            padding-left: 1.5em;
-        }
-        & ul {
-            list-style: disc;
-        }
-        & ol {
-            list-style: decimal;
-        }
-        & li > p {
-            margin: 0;
-        }
-        & li + li {
-            margin-top: 0.2em;
-        }
-        & li::marker {
-            color: var(--muted-foreground);
-        }
-        & blockquote {
-            border-left: 2px solid color-mix(in oklch, var(--primary) 60%, transparent);
-            padding-left: 0.9em;
-            color: var(--muted-foreground);
-        }
-        & hr {
-            border-color: var(--border);
-            margin-block: 1.25em;
-        }
-        & code {
-            font-family: var(--font-mono);
-            font-size: 0.85em;
-            padding: 0.1em 0.35em;
-            background: color-mix(in oklch, var(--foreground) 8%, transparent);
-            border: 1px solid var(--border);
-        }
-        & pre {
-            font-family: var(--font-mono);
-            font-size: 0.8125rem;
-            line-height: 1.55;
-            padding: 0.75em 1em;
-            overflow-x: auto;
-            background: color-mix(in oklch, var(--background) 70%, black 10%);
-            border: 1px solid var(--border);
-            & code {
-                padding: 0;
-                background: none;
-                border: 0;
-                font-size: inherit;
-            }
-        }
-        & p.is-editor-empty:first-child::before {
-            content: attr(data-placeholder);
-            float: left;
-            height: 0;
-            pointer-events: none;
-            color: color-mix(in oklch, var(--muted-foreground) 80%, transparent);
-        }
-        /* The `@query` being typed while the file list is open. */
-        & .suggestion {
-            color: var(--primary);
-        }
+    & > * + * {
+      margin-top: 0.75em;
     }
+    & h1,
+    & h2,
+    & h3 {
+      font-family: var(--font-heading);
+      letter-spacing: 0.03em;
+      line-height: 1.25;
+      margin-top: 1.25em;
+    }
+    & > :first-child {
+      margin-top: 0;
+    }
+    & h1 {
+      font-size: 1.5rem;
+    }
+    & h2 {
+      font-size: 1.25rem;
+    }
+    & h3 {
+      font-size: 1.075rem;
+    }
+    & strong {
+      font-weight: 700;
+    }
+    & em {
+      font-style: italic;
+    }
+    & a {
+      color: var(--primary);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    & ul,
+    & ol {
+      padding-left: 1.5em;
+    }
+    & ul {
+      list-style: disc;
+    }
+    & ol {
+      list-style: decimal;
+    }
+    & li > p {
+      margin: 0;
+    }
+    & li + li {
+      margin-top: 0.2em;
+    }
+    & li::marker {
+      color: var(--muted-foreground);
+    }
+    & blockquote {
+      border-left: 2px solid
+        color-mix(in oklch, var(--primary) 60%, transparent);
+      padding-left: 0.9em;
+      color: var(--muted-foreground);
+    }
+    & hr {
+      border-color: var(--border);
+      margin-block: 1.25em;
+    }
+    & code {
+      font-family: var(--font-mono);
+      font-size: 0.85em;
+      padding: 0.1em 0.35em;
+      background: color-mix(in oklch, var(--foreground) 8%, transparent);
+      border: 1px solid var(--border);
+    }
+    & pre {
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      line-height: 1.55;
+      padding: 0.75em 1em;
+      overflow-x: auto;
+      background: color-mix(in oklch, var(--background) 70%, black 10%);
+      border: 1px solid var(--border);
+      & code {
+        padding: 0;
+        background: none;
+        border: 0;
+        font-size: inherit;
+      }
+    }
+    & p.is-editor-empty:first-child::before {
+      content: attr(data-placeholder);
+      float: left;
+      height: 0;
+      pointer-events: none;
+      color: color-mix(in oklch, var(--muted-foreground) 80%, transparent);
+    }
+    /* The `@query` being typed while the file list is open. */
+    & .suggestion {
+      color: var(--primary);
+    }
+  }
 
-    .file-mention {
-        font-family: var(--font-mono);
-        font-size: 0.82em;
-        padding: 0.05em 0.4em;
-        color: var(--primary);
-        background: color-mix(in oklch, var(--primary) 12%, transparent);
-        border: 1px solid color-mix(in oklch, var(--primary) 35%, transparent);
-        box-decoration-break: clone;
-    }
-    .ProseMirror-selectednode.file-mention,
-    .ProseMirror-selectednode .file-mention {
-        outline: 2px solid var(--ring);
-    }
+  .file-mention {
+    font-family: var(--font-mono);
+    font-size: 0.82em;
+    padding: 0.05em 0.4em;
+    color: var(--primary);
+    background: color-mix(in oklch, var(--primary) 12%, transparent);
+    border: 1px solid color-mix(in oklch, var(--primary) 35%, transparent);
+    box-decoration-break: clone;
+  }
+  .ProseMirror-selectednode.file-mention,
+  .ProseMirror-selectednode .file-mention {
+    outline: 2px solid var(--ring);
+  }
 }
 
 /* PR summary in the card dialog: compact markdown in the mono voice. */
 @layer components {
-    .pr-summary {
-        font-family: var(--font-mono);
-        font-size: 0.8125rem;
-        line-height: 1.6;
-        color: var(--muted-foreground);
-        overflow-wrap: anywhere;
+  .pr-summary {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--muted-foreground);
+    overflow-wrap: anywhere;
 
-        & > * + * {
-            margin-top: 0.5em;
-        }
-        & h1,
-        & h2,
-        & h3,
-        & h4 {
-            color: var(--foreground);
-            font-weight: 700;
-        }
-        & strong {
-            color: var(--foreground);
-            font-weight: 700;
-        }
-        & ul,
-        & ol {
-            padding-left: 1.25em;
-        }
-        & ul {
-            list-style: disc;
-        }
-        & ol {
-            list-style: decimal;
-        }
-        & li + li {
-            margin-top: 0.15em;
-        }
-        & li::marker {
-            color: var(--success);
-        }
-        & code {
-            font-size: 0.92em;
-            padding: 0 0.3em;
-            color: var(--foreground);
-            background: color-mix(in oklch, var(--foreground) 8%, transparent);
-        }
-        & pre {
-            overflow-x: auto;
-            padding: 0.5em 0.75em;
-            background: color-mix(in oklch, var(--foreground) 6%, transparent);
-            & code {
-                padding: 0;
-                background: none;
-            }
-        }
-        & a {
-            color: var(--primary);
-            text-decoration: underline;
-            text-underline-offset: 3px;
-        }
+    & > * + * {
+      margin-top: 0.5em;
     }
+    & h1,
+    & h2,
+    & h3,
+    & h4 {
+      color: var(--foreground);
+      font-weight: 700;
+    }
+    & strong {
+      color: var(--foreground);
+      font-weight: 700;
+    }
+    & ul,
+    & ol {
+      padding-left: 1.25em;
+    }
+    & ul {
+      list-style: disc;
+    }
+    & ol {
+      list-style: decimal;
+    }
+    & li + li {
+      margin-top: 0.15em;
+    }
+    & li::marker {
+      color: var(--success);
+    }
+    & code {
+      font-size: 0.92em;
+      padding: 0 0.3em;
+      color: var(--foreground);
+      background: color-mix(in oklch, var(--foreground) 8%, transparent);
+    }
+    & pre {
+      overflow-x: auto;
+      padding: 0.5em 0.75em;
+      background: color-mix(in oklch, var(--foreground) 6%, transparent);
+      & code {
+        padding: 0;
+        background: none;
+      }
+    }
+    & a {
+      color: var(--primary);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  }
 }

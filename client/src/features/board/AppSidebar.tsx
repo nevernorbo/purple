@@ -77,7 +77,7 @@ export function AppSidebar({
     <>
       <Sidebar collapsible="icon">
         <SidebarHeader className="h-16 justify-center overflow-hidden logbook-header px-3 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-2">
-          <Logo className="shrink-0 whitespace-nowrap" />
+          <Logo />
         </SidebarHeader>
 
         <SidebarContent>
@@ -143,7 +143,8 @@ export function AppSidebar({
                     tooltip="Add Board"
                     aria-label="Add Board"
                     aria-expanded={adding}
-                    className="text-muted-foreground transition-none"
+                    variant="action"
+                    className="transition-none"
                     onClick={() => {
                       setOpen(true)
                       setAdding((a) => !a)

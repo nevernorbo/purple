@@ -26,6 +26,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { cn } from "@/lib/utils"
 import { createFileMention, type FileSuggestionBridge } from "./fileMention"
 import {
@@ -118,28 +119,16 @@ function ModeToggle({
   onChange: (mode: Mode) => void
 }) {
   return (
-    <div
-      role="radiogroup"
+    <ToggleGroup
       aria-label="Prompt view"
-      className="flex border bg-background/40"
+      size="sm"
+      value={[mode]}
+      // Radio-like: pressing the active segment would empty the group; ignore that.
+      onValueChange={([next]) => next && onChange(next as Mode)}
     >
-      {(["rich", "plain"] as const).map((m) => (
-        <button
-          key={m}
-          type="button"
-          role="radio"
-          aria-checked={mode === m}
-          onClick={() => onChange(m)}
-          className={cn(
-            "h-6 px-2.5 hud-caps text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground",
-            mode === m &&
-              "bg-primary/15 text-foreground shadow-[inset_0_-2px_0_var(--primary)]"
-          )}
-        >
-          {m === "rich" ? "Rich" : "Plain"}
-        </button>
-      ))}
-    </div>
+      <ToggleGroupItem value="rich">Rich</ToggleGroupItem>
+      <ToggleGroupItem value="plain">Plain</ToggleGroupItem>
+    </ToggleGroup>
   )
 }
 
@@ -372,7 +361,6 @@ function FormatButtons({ editor }: { editor: Editor }) {
             // Keep the editor's selection while clicking.
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => action.run(editor)}
-            className={cn(pressed && "bg-primary/15 text-foreground")}
           >
             <ActionIcon />
           </Button>

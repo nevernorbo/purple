@@ -10,24 +10,30 @@ export type SystemKind = Exclude<ColumnKind, "custom">
 
 export const SYSTEM_META: Record<
   SystemKind,
-  { icon: ReactNode; empty: string; accent: string; text: string }
+  {
+    icon: ReactNode
+    empty: string
+    /** A `tint-*` class: colors `hud-strip`, and solid swatches via `bg-(--tint)`. */
+    tint: string
+    text: string
+  }
 > = {
   running: {
     icon: <CircleNotchIcon className="size-4" />,
     empty: "No Active Runs",
-    accent: "bg-primary",
+    tint: "tint-primary",
     text: "text-primary",
   },
   completed: {
     icon: <CheckCircleIcon className="size-4" />,
     empty: "No Completed Runs",
-    accent: "bg-success",
+    tint: "tint-success",
     text: "text-success",
   },
   failed: {
     icon: <XCircleIcon className="size-4" />,
     empty: "No Failed Runs",
-    accent: "bg-destructive",
+    tint: "tint-destructive",
     text: "text-destructive",
   },
 }

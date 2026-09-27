@@ -3,6 +3,7 @@ import type { CardRevision } from "purple-server"
 import { useEffect, useMemo, useState } from "react"
 
 import { Button } from "@/components/ui/button"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { api, call } from "@/lib/api"
 import { relativeTime, useNow } from "@/lib/time"
 import { cn } from "@/lib/utils"
@@ -140,33 +141,15 @@ export function RevisionHistory({
 
       <div className="flex min-h-0 flex-col">
         <div className="flex flex-wrap items-center gap-2 border-b bg-panel-header/40 px-2 py-1.5">
-          <div
-            role="radiogroup"
+          <ToggleGroup
             aria-label="Compare"
-            className="flex border bg-background/40"
+            size="sm"
+            value={[mode]}
+            onValueChange={([next]) => next && setMode(next as Mode)}
           >
-            {(
-              [
-                ["changes", "Changes"],
-                ["current", "Vs Current"],
-              ] as const
-            ).map(([m, label]) => (
-              <button
-                key={m}
-                type="button"
-                role="radio"
-                aria-checked={mode === m}
-                onClick={() => setMode(m)}
-                className={cn(
-                  "h-6 px-2.5 hud-caps text-xs font-semibold text-muted-foreground hover:text-foreground",
-                  mode === m &&
-                    "bg-primary/15 text-foreground shadow-[inset_0_-2px_0_var(--primary)]"
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+            <ToggleGroupItem value="changes">Changes</ToggleGroupItem>
+            <ToggleGroupItem value="current">Vs Current</ToggleGroupItem>
+          </ToggleGroup>
           <span className="font-mono text-xs text-muted-foreground">
             {fromLabel} → {toLabel}
           </span>

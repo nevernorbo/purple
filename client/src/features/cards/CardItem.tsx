@@ -104,8 +104,8 @@ export function CardItem({
     <article
       {...props}
       className={cn(
-        "group/card relative flex flex-col gap-3 border bg-card p-4 text-card-foreground shadow-[inset_0_1px_0_var(--edge)] transition-colors outline-none hover:border-foreground/30 focus-visible:ring-2 focus-visible:ring-ring/50",
-        running && "animate-glow border-primary/60",
+        "group/card relative flex flex-col gap-3 border-3 border-frame bg-card p-4 text-card-foreground transition-colors outline-none hover:border-foreground/40 focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ring focus-visible:outline-solid",
+        running && "animate-glow border-primary/70",
         className
       )}
     >
@@ -212,7 +212,7 @@ export function CardItem({
         </p>
       )}
 
-      <footer className="flex min-h-9 flex-wrap items-center gap-x-2 gap-y-2 border-t border-dashed pt-3 text-sm text-muted-foreground">
+      <footer className="flex min-h-9 flex-wrap items-center gap-x-2 gap-y-2 border-t-2 border-dashed border-frame/70 pt-3 text-sm text-muted-foreground">
         <CardStatus card={card} />
         <span
           className="ml-auto shrink-0 hud-caps tabular-nums"

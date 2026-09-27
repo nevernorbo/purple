@@ -25,6 +25,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Input } from "@/components/ui/input"
+import { Kbd } from "@/components/ui/kbd"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cardActions } from "@/features/cards/actions"
@@ -205,7 +206,7 @@ export function Board() {
         onOpenLabels={() => setLabelsOpen(true)}
       />
       <SidebarInset className="h-svh min-w-0 overflow-hidden">
-        <header className="flex h-16 shrink-0 items-center gap-3 border-b bg-panel/70 px-3 shadow-[inset_0_-1px_0_color-mix(in_oklch,var(--primary)_25%,transparent)] backdrop-blur-md md:px-4">
+        <header className="flex h-16 shrink-0 items-center gap-3 hud-bar px-3 md:px-4">
           <h1 className="min-w-0 truncate hud-caps text-2xl leading-tight font-normal md:text-3xl">
             {repo?.name ?? "Purple"}
           </h1>
@@ -236,9 +237,9 @@ export function Board() {
                     className="peer h-10 pr-14 pl-8"
                   />
                   {!hash.q && (
-                    <kbd className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 border px-1.5 font-mono text-xs text-muted-foreground peer-focus:hidden">
+                    <Kbd className="absolute top-1/2 right-2.5 -translate-y-1/2 bg-transparent peer-focus:hidden">
                       {isMac ? "⌘K" : "Ctrl K"}
-                    </kbd>
+                    </Kbd>
                   )}
                 </div>
                 <LabelFilter

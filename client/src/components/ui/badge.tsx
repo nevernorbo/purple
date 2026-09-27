@@ -18,9 +18,12 @@ const badgeVariants = cva(
         ghost:
           "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
         link: "text-primary underline-offset-4 hover:underline",
+        // Framed tally chip, e.g. a column's card count.
+        count:
+          "h-auto min-w-6 border-2 border-frame bg-background/50 px-1.5 py-0 hud-caps leading-5 font-bold text-muted-foreground tabular-nums inset-shadow-hud-sm",
         // Item-rarity tag: pair with a color from lib/label-colors.
         rarity:
-          "border-l-2 hud-caps font-semibold tracking-wider shadow-[inset_0_0_0_1px_color-mix(in_oklch,currentColor_28%,transparent)]",
+          "border-2 border-current/60 hud-caps font-semibold tracking-wider shadow-[inset_0_0_4px_color-mix(in_oklch,currentColor_45%,transparent)]",
       },
     },
     defaultVariants: {

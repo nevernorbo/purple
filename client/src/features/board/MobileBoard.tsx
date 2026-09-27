@@ -62,11 +62,8 @@ export function MobileBoard({
     })
   }
 
-  const tabClass = (selected: boolean) =>
-    cn(
-      "relative flex h-12 shrink-0 items-center gap-2 px-4 hud-caps text-base font-bold tracking-wider outline-none focus-visible:bg-foreground/8",
-      selected ? "text-foreground" : "text-muted-foreground"
-    )
+  const tabClass =
+    "flex h-9 shrink-0 items-center gap-2 px-3 hud-tab hud-caps text-base font-bold tracking-wider [--tab-border-width:var(--frame-width)] [--tab-outline-offset:3px]"
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -74,7 +71,7 @@ export function MobileBoard({
         ref={tabs}
         role="tablist"
         aria-label="Columns"
-        className="flex shrink-0 [scrollbar-width:none] overflow-x-auto border-b bg-panel/70 px-1 backdrop-blur-md"
+        className="flex shrink-0 [scrollbar-width:none] gap-3 overflow-x-auto hud-bar p-2.5"
       >
         {columns.map((column) => {
           const id = String(column.id)
@@ -89,24 +86,18 @@ export function MobileBoard({
               data-tab={id}
               aria-selected={selected}
               onClick={() => show(id)}
-              className={tabClass(selected)}
+              className={tabClass}
             >
               {system && (
                 <span
                   aria-hidden
-                  className={cn("size-2 rotate-45", system.accent)}
+                  className={cn("size-2 rotate-45 bg-(--tint)", system.tint)}
                 />
               )}
               <span className="max-w-36 truncate">{column.name}</span>
               <span className="text-xs text-muted-foreground tabular-nums">
                 {counts.get(column.id) ?? 0}
               </span>
-              {selected && (
-                <span
-                  aria-hidden
-                  className="absolute inset-x-2 bottom-0 h-0.5 bg-primary shadow-[0_0_8px_var(--glow)]"
-                />
-              )}
             </button>
           )
         })}
@@ -117,15 +108,9 @@ export function MobileBoard({
           aria-selected={active === ADD_SLIDE}
           aria-label="Add column"
           onClick={() => show(ADD_SLIDE)}
-          className={tabClass(active === ADD_SLIDE)}
+          className={tabClass}
         >
           <PlusIcon className="size-4" />
-          {active === ADD_SLIDE && (
-            <span
-              aria-hidden
-              className="absolute inset-x-2 bottom-0 h-0.5 bg-primary"
-            />
-          )}
         </button>
       </div>
 
